@@ -27,7 +27,7 @@ void FreightStorage::loadFreightFromFile(const std::string& filename) {
 
 void FreightStorage::addFreight(const Freight& freight) {
     freights.push_back(freight);
-    std::cout << "Added Freight: " << freight.getFid() << std::endl;
+    //std::cout << "Added Freight: " << freight.getFid() << std::endl;
 }
 
 bool FreightStorage::editFreight(const std::string& id, const std::string& newLocation, time_t newTime) {

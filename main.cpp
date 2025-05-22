@@ -39,7 +39,7 @@ void printCargoAndFreightTable(const CargoStorage& cargoStorage, const FreightSt
         else {
             cout << setw(10) << "" << setw(16) << "" << setw(8) << "";
         }
-        cout << "    "; // gap between tables
+        cout << "        "; // gap between tables
 
         // Freight columns
         if (i < freights.size()) {
@@ -122,26 +122,24 @@ int main() {
 
     while (true) {
         cout << "\n1. View Cargo & Freight Table\n"
-            << "2. View Freight\n"
-            << "3. Add Cargo\n"
-            << "4. Edit Cargo\n"
-            << "5. Delete Cargo\n"
-            << "6. Add Freight\n"
-            << "7. Edit Freight\n"
-            << "8. Delete Freight\n"
-            << "9. Generate & View Schedule\n"
-            << "10. Save Schedule to File\n"
-            << "11. Exit\n"
+            << "2. Add Cargo\n"
+            << "3. Edit Cargo\n"
+            << "4. Delete Cargo\n"
+            << "5. Add Freight\n"
+            << "6. Edit Freight\n"
+            << "7. Delete Freight\n"
+            << "8. Generate & View Schedule\n"
+            << "9. Save Schedule to File\n"
+            << "10. Exit\n"
             << "Select an option: ";
         getline(cin, command);
 
         if (command == "1") {
             printCargoAndFreightTable(cargoStorage, freightStorage);
         }
+
+        
         else if (command == "2") {
-            printFreightList(freightStorage);
-        }
-        else if (command == "3") {
             string id, location, timeStr;
             time_t timeVal;
             cout << "Enter Cargo ID: ";
@@ -155,7 +153,7 @@ int main() {
             cargoStorage.addCargo(c);
             cout << "Cargo added.\n";
         }
-        else if (command == "4") {
+        else if (command == "3") {
             string id, location, timeStr;
             time_t timeVal;
             cout << "Enter Cargo ID to edit: ";
@@ -172,7 +170,7 @@ int main() {
                 cout << "Cargo not found.\n";
             }
         }
-        else if (command == "5") {
+        else if (command == "4") {
             string id;
             cout << "Enter Cargo ID to delete: ";
             getline(cin, id);
@@ -183,7 +181,7 @@ int main() {
                 cout << "Cargo not found.\n";
             }
         }
-        else if (command == "6") {
+        else if (command == "5") {
             string id, location, timeStr;
             time_t timeVal;
             cout << "Enter Freight ID: ";
@@ -197,7 +195,7 @@ int main() {
             freightStorage.addFreight(f);
             cout << "Freight added.\n";
         }
-        else if (command == "7") {
+        else if (command == "6") {
             string id, location, timeStr;
             time_t timeVal;
             cout << "Enter Freight ID to edit: ";
@@ -214,7 +212,7 @@ int main() {
                 cout << "Freight not found.\n";
             }
         }
-        else if (command == "8") {
+        else if (command == "7") {
             string id;
             cout << "Enter Freight ID to delete: ";
             getline(cin, id);
@@ -225,7 +223,7 @@ int main() {
                 cout << "Freight not found.\n";
             }
         }
-        else if (command == "9") {
+        else if (command == "8") {
             generateMatches(freightStorage, cargoStorage, matchedStorage, unmatchedFreights, unmatchedCargos);
             matchedStorage.displayAllMatches();
             cout << "\nUnmatched Freights:\n";
@@ -233,13 +231,13 @@ int main() {
             cout << "\nUnmatched Cargos:\n";
             for (const auto& cid : unmatchedCargos) cout << cid << endl;
         }
-        else if (command == "10") {
+        else if (command == "9") {
             string filename;
             cout << "Enter filename to save schedule (e.g., schedule.txt): ";
             getline(cin, filename);
             matchedStorage.saveMatches(filename);
         }
-        else if (command == "11") {
+        else if (command == "10") {
             cout << "Exiting...\n";
             break;
         }

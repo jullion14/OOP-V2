@@ -27,7 +27,7 @@ void CargoStorage::loadCargoFromFile(const std::string& filename) {
 
 void CargoStorage::addCargo(const Cargo& cargo) {
     cargos.push_back(cargo);
-    std::cout << "Added Cargo: " << cargo.getCid() << std::endl;
+    //std::cout << "Added Cargo: " << cargo.getCid() << std::endl;
 }
 
 bool CargoStorage::editCargo(const std::string& id, const std::string& newLocation, time_t newTime) {
