@@ -127,7 +127,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Cargo.h" />
+    <ClInclude Include="Cargo.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="CargoStorage.h" />
     <ClInclude Include="Freight.h" />
     <ClInclude Include="FreightStorage.h" />

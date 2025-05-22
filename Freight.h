@@ -1,13 +1,24 @@
 #pragma once
 #include "Transport.h"
-class Freight :protected Transport
-{
+
+class Freight : public Transport {
 protected:
-	string Fid;
-	string Flocation;
-	time_t Ftime;
+    std::string Fid;
+    std::string Flocation;
+    time_t Ftime;
 
 public:
-	void readFreightFile(string, string, time_t);
-};
+    Freight();
+    Freight(const std::string& id, const std::string& location, time_t time);
 
+    std::string getFid() const;
+    std::string getFlocation() const;
+    time_t getFtime() const;
+
+    void setFid(const std::string& id);
+    void setFlocation(const std::string& location);
+    void setFtime(time_t time);
+
+    void readFreightFile(const std::string& id, const std::string& location, time_t time);
+    //void readFile() override;
+};

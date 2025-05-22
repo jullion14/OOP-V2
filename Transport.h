@@ -1,16 +1,25 @@
 #pragma once
 #include <string>
-#include <iostream>
 #include <ctime>
-using namespace std;
 
-class Transport
-{
+class Transport {
 protected:
-	string id;
-	string location;
-	time_t time;
-public:
-	void readfile();
-};
+    std::string id;
+    std::string location;
+    time_t time;
 
+public:
+    Transport();
+    Transport(const std::string& id, const std::string& location, time_t time);
+    virtual ~Transport();
+
+    std::string getId() const;
+    std::string getLocation() const;
+    time_t getTime() const;
+
+    void setId(const std::string& newId);
+    void setLocation(const std::string& newLocation);
+    void setTime(time_t newTime);
+
+   // virtual void readFile();
+};

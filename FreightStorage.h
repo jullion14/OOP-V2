@@ -1,15 +1,19 @@
 #pragma once
 #include "Freight.h"
 #include <vector>
+#include <string>
 
-using namespace std;
-
-class FreightStorage :protected Freight
-{
+class FreightStorage {
 protected:
-	vector<Freight> freightStorage;
+    std::vector<Freight> freights;
 
 public:
-	void loadCargoStorage(string filename, string location, time_t time);
-};
+    FreightStorage();
 
+    void loadFreightFromFile(const std::string& filename);
+    void addFreight(const Freight& freight);
+    bool editFreight(const std::string& id, const std::string& newLocation, time_t newTime);
+    bool deleteFreight(const std::string& id);
+    void saveFreightStorage(const std::string& filename);
+    const std::vector<Freight>& getFreights() const;
+};

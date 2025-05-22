@@ -1,15 +1,24 @@
 #pragma once
-
-#include <ctime>
 #include "Transport.h"
-class Cargo : protected Transport
-{
+
+class Cargo : public Transport {
 protected:
-	string Cid;
-	string Clocation;
-	time_t Ctime;
+    std::string Cid;
+    std::string Clocation;
+    time_t Ctime;
 
 public:
-	void readCargoFile(string, string, time_t);
-};
+    Cargo();
+    Cargo(const std::string& id, const std::string& location, time_t time);
 
+    std::string getCid() const;
+    std::string getClocation() const;
+    time_t getCtime() const;
+
+    void setCid(const std::string& id);
+    void setClocation(const std::string& location);
+    void setCtime(time_t time);
+
+    void readCargoFile(const std::string& id, const std::string& location, time_t time);
+    //void readFile() override;
+};

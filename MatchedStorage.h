@@ -1,9 +1,18 @@
 #pragma once
+
 #include "Matcher.h"
 #include <vector>
-class MatchedStorage : protected Matcher
-{
-protected:
-	vector<Matcher> matchedList;
-};
+#include <string>
 
+class MatchedStorage {
+protected:
+    std::vector<Matcher> matchedList;
+
+public:
+    MatchedStorage();
+
+    void addMatch(const Matcher& match);
+    void displayAllMatches() const;
+    void saveMatches(const std::string& filename) const;
+    const std::vector<Matcher>& getMatchedList() const;
+};
