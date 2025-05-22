@@ -1,7 +1,7 @@
 #include <iostream>
 #include <iomanip>
-#include <string>
 #include <vector>
+#include <string>
 #include <algorithm>
 #include "FreightStorage.h"
 #include "CargoStorage.h"
@@ -39,7 +39,8 @@ void printCargoAndFreightTable(const CargoStorage& cargoStorage, const FreightSt
         else {
             cout << setw(10) << "" << setw(16) << "" << setw(8) << "";
         }
-        cout << "        "; // gap between tables
+
+        cout << "    "; // gap between tables
 
         // Freight columns
         if (i < freights.size()) {
@@ -47,13 +48,16 @@ void printCargoAndFreightTable(const CargoStorage& cargoStorage, const FreightSt
                 << setw(16) << freights[i].getFlocation()
                 << setw(12) << setfill('0') << setw(4) << freights[i].getFtime() << setfill(' ');
         }
+        else {
+            cout << setw(12) << "" << setw(16) << "" << setw(12) << "";
+        }
         cout << endl;
     }
 }
 
 // Simple matching: match by location and time
-void generateMatches(const FreightStorage& freightStorage, const CargoStorage& cargoStorage, MatchedStorage& matchedStorage,
-    vector<string>& unmatchedFreights, vector<string>& unmatchedCargos) {
+void generateMatches(const FreightStorage& freightStorage, const CargoStorage& cargoStorage,
+    MatchedStorage& matchedStorage, vector<string>& unmatchedFreights, vector<string>& unmatchedCargos) {
     matchedStorage = MatchedStorage(); // Clear previous matches
     unmatchedFreights.clear();
     unmatchedCargos.clear();
@@ -86,26 +90,6 @@ void generateMatches(const FreightStorage& freightStorage, const CargoStorage& c
     }
 }
 
-void printCargoList(const CargoStorage& cargoStorage) {
-    const auto& cargos = cargoStorage.getCargoStorage();
-    cout << "Cargo List:\n";
-    for (const auto& c : cargos) {
-        cout << "ID: " << c.getCid()
-            << ", Location: " << c.getClocation()
-            << ", Time: " << c.getCtime() << endl;
-    }
-}
-
-void printFreightList(const FreightStorage& freightStorage) {
-    const auto& freights = freightStorage.getFreights();
-    cout << "Freight List:\n";
-    for (const auto& f : freights) {
-        cout << "ID: " << f.getFid()
-            << ", Location: " << f.getFlocation()
-            << ", Time: " << f.getFtime() << endl;
-    }
-}
-
 int main() {
     FreightStorage freightStorage;
     CargoStorage cargoStorage;
@@ -119,27 +103,28 @@ int main() {
     string command;
 
     cout << "========== MAIN MENU ==========" << endl;
-
     while (true) {
-        cout << "\n1. View Cargo & Freight Table\n"
-            << "2. Add Cargo\n"
-            << "3. Edit Cargo\n"
-            << "4. Delete Cargo\n"
-            << "5. Add Freight\n"
-            << "6. Edit Freight\n"
-            << "7. Delete Freight\n"
-            << "8. Generate & View Schedule\n"
-            << "9. Save Schedule to File\n"
-            << "10. Exit\n"
+        cout << "\n1. View Cargo\n"
+            << "2. View Schedule\n"
+            << "3. Add Cargo\n"
+            << "4. Edit Cargo\n"
+            << "5. Delete Cargo\n"
+            << "6. Add Freight\n"
+            << "7. Edit Freight\n"
+            << "8. Delete Freight\n"
+            << "9. Generate & View Schedule\n"
+            << "10. Save Schedule to File\n"
+            << "11. Exit\n"
             << "Select an option: ";
         getline(cin, command);
 
         if (command == "1") {
             printCargoAndFreightTable(cargoStorage, freightStorage);
         }
-
-        
         else if (command == "2") {
+            matchedStorage.displayAllMatches();
+        }
+        else if (command == "3") {
             string id, location, timeStr;
             time_t timeVal;
             cout << "Enter Cargo ID: ";
@@ -153,7 +138,7 @@ int main() {
             cargoStorage.addCargo(c);
             cout << "Cargo added.\n";
         }
-        else if (command == "3") {
+        else if (command == "4") {
             string id, location, timeStr;
             time_t timeVal;
             cout << "Enter Cargo ID to edit: ";
@@ -170,7 +155,7 @@ int main() {
                 cout << "Cargo not found.\n";
             }
         }
-        else if (command == "4") {
+        else if (command == "5") {
             string id;
             cout << "Enter Cargo ID to delete: ";
             getline(cin, id);
@@ -181,7 +166,7 @@ int main() {
                 cout << "Cargo not found.\n";
             }
         }
-        else if (command == "5") {
+        else if (command == "6") {
             string id, location, timeStr;
             time_t timeVal;
             cout << "Enter Freight ID: ";
@@ -195,7 +180,7 @@ int main() {
             freightStorage.addFreight(f);
             cout << "Freight added.\n";
         }
-        else if (command == "6") {
+        else if (command == "7") {
             string id, location, timeStr;
             time_t timeVal;
             cout << "Enter Freight ID to edit: ";
@@ -212,7 +197,7 @@ int main() {
                 cout << "Freight not found.\n";
             }
         }
-        else if (command == "7") {
+        else if (command == "8") {
             string id;
             cout << "Enter Freight ID to delete: ";
             getline(cin, id);
@@ -223,7 +208,7 @@ int main() {
                 cout << "Freight not found.\n";
             }
         }
-        else if (command == "8") {
+        else if (command == "9") {
             generateMatches(freightStorage, cargoStorage, matchedStorage, unmatchedFreights, unmatchedCargos);
             matchedStorage.displayAllMatches();
             cout << "\nUnmatched Freights:\n";
@@ -231,13 +216,13 @@ int main() {
             cout << "\nUnmatched Cargos:\n";
             for (const auto& cid : unmatchedCargos) cout << cid << endl;
         }
-        else if (command == "9") {
+        else if (command == "10") {
             string filename;
             cout << "Enter filename to save schedule (e.g., schedule.txt): ";
             getline(cin, filename);
             matchedStorage.saveMatches(filename);
         }
-        else if (command == "10") {
+        else if (command == "11") {
             cout << "Exiting...\n";
             break;
         }
