@@ -6,22 +6,28 @@
 #include <iostream>
 #include <fstream>
 
+using namespace std;
+
 class FreightStorage;
 class CargoStorage;
 
 class MatchedStorage {
 protected:
-    std::vector<Matcher> matchedList;
+    vector<Matcher> matchedList;
 
 public:
     MatchedStorage();
 
     void addMatch(const Matcher& match);
-    void displayAllMatches() const;
-    void saveMatches(const std::string& filename) const;
-    const std::vector<Matcher>& getMatchedList() const;
+    void displayAllMatches(const vector<string>& unmatchedFreights, const vector<string>& unmatchedCargos) const;
+    void saveMatches(const string& filename,
+        const vector<string>& unmatchedFreights,
+        const vector<string>& unmatchedCargos) const;
+    const vector<Matcher>& getMatchedList() const;
 
-    void displayScheduleFile(const std::string& filename) const;
-    void generateMatches(const FreightStorage& freightStorage, const CargoStorage& cargoStorage,
-        std::vector<std::string>& unmatchedFreights, std::vector<std::string>& unmatchedCargos);
+    void displayScheduleFile(const string& filename) const;
+    void generateMatches(const FreightStorage& freightStorage,
+        const CargoStorage& cargoStorage,
+        vector<string>& unmatchedFreights,
+        vector<string>& unmatchedCargos);
 };

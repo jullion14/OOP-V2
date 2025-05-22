@@ -3,25 +3,18 @@
 #include "Transport.h"
 #include <string>
 
-class Cargo : public Transport {
-protected:
-    std::string Cid;
-    std::string Clocation;
-    time_t Ctime;
+using namespace std;
 
+class Cargo : public Transport {
 public:
     Cargo();
-    Cargo(const std::string& id, const std::string& location, time_t time);
+    Cargo(const string& id, const string& location, time_t time);
 
-    std::string getCid() const;
-    std::string getClocation() const;
+    string getCid() const;
+    string getClocation() const;
     time_t getCtime() const;
 
-    void setCid(const std::string& id);
-    void setClocation(const std::string& location);
+    void setCid(const string& id);
+    void setClocation(const string& location);
     void setCtime(time_t time);
-
-    void readCargoFile(const std::string& id, const std::string& location, time_t time);
-
-    //void readFile() override;
 };

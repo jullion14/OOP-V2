@@ -5,22 +5,24 @@
 #include <string>
 #include <iostream>
 
-class FreightStorage; // Forward declaration
+using namespace std;
+
+class FreightStorage; 
 
 class CargoStorage {
 protected:
-    std::vector<Cargo> cargos;
+    vector<Cargo> cargos;
 
 public:
     CargoStorage();
 
-    void loadCargoFromFile(const std::string& filename);
+    void loadCargoFromFile(const string& filename);
     void addCargo(const Cargo& cargo);
-    bool editCargo(const std::string& id, const std::string& newLocation, time_t newTime);
-    bool deleteCargo(const std::string& id);
-    void saveCargoStorage(const std::string& filename);
-    const std::vector<Cargo>& getCargoStorage() const;
-
-    // Table display function
+    bool editCargo(const string& id, const string& newLocation, time_t newTime);
+    bool deleteCargo(const string& id);
+    void saveCargoStorage(const string& filename);
+    const vector<Cargo>& getCargoStorage() const;
     void printCargoTable(const FreightStorage& freightStorage) const;
+    string generateNextCargoId() const;
+
 };

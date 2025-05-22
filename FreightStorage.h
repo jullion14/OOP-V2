@@ -5,17 +5,20 @@
 #include <string>
 #include <iostream>
 
+using namespace std;
+
 class FreightStorage {
 protected:
-    std::vector<Freight> freights;
+    vector<Freight> freights;
 
 public:
     FreightStorage();
 
-    void loadFreightFromFile(const std::string& filename);
+    void loadFreightFromFile(const string& filename);
     void addFreight(const Freight& freight);
-    bool editFreight(const std::string& id, const std::string& newLocation, time_t newTime);
-    bool deleteFreight(const std::string& id);
-    void saveFreightStorage(const std::string& filename);
-    const std::vector<Freight>& getFreights() const;
+    bool editFreight(const string& id, const string& newLocation, time_t newTime);
+    bool deleteFreight(const string& id);
+    void saveFreightStorage(const string& filename);
+    const vector<Freight>& getFreights() const;
+    string generateNextFreightId() const;
 };

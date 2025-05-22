@@ -1,28 +1,41 @@
 #include "Cargo.h"
+#include <regex>
+#include <stdexcept>
 
-Cargo::Cargo() : Transport(), Cid(""), Clocation(""), Ctime(0) {}
+Cargo::Cargo() : Transport() {}
 
-Cargo::Cargo(const std::string& id, const std::string& location, time_t time)
-    : Transport(id, location, time), Cid(id), Clocation(location), Ctime(time) {
+Cargo::Cargo(const std::string& id, const std::string& location, time_t time) {
+    setCid(id);
+    setClocation(location);
+    setCtime(time);
 }
 
-std::string Cargo::getCid() const { return Cid; }
-std::string Cargo::getClocation() const { return Clocation; }
-time_t Cargo::getCtime() const { return Ctime; }
-
-void Cargo::setCid(const std::string& id) { Cid = id; Transport::id = id; }
-void Cargo::setClocation(const std::string& location) { Clocation = location; Transport::location = location; }
-void Cargo::setCtime(time_t time) { Ctime = time; Transport::time = time; }
-
-void Cargo::readCargoFile(const std::string& id, const std::string& location, time_t time) {
-    Cid = id;
-    Clocation = location;
-    Ctime = time;
-    Transport::id = id;
-    Transport::location = location;
-    Transport::time = time;
+std::string Cargo::getCid() const {
+    return getId();  
 }
 
-//void Cargo::readFile() {
-//    std::cout << "Cargo::readFile() called." << std::endl;
-//}
+std::string Cargo::getClocation() const {
+    return getLocation();  
+}
+
+time_t Cargo::getCtime() const {
+    return getTime();  
+}
+
+void Cargo::setCid(const std::string& id) {
+    setId(id);  
+}
+
+void Cargo::setClocation(const std::string& location) {
+    if (!std::regex_match(location, std::regex("^[A-Za-z ]+$"))) {
+        throw std::invalid_argument("Location must contain only letters and spaces.");
+    }
+    setLocation(location);  
+}
+
+void Cargo::setCtime(time_t time) {
+    if (time < 0 || time > 2359 || time % 100 >= 60) {
+        throw std::invalid_argument("Time must be in 24-hour format (0000 to 2359, valid minutes).");
+    }
+    setTime(time);  
+}

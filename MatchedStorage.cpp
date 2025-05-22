@@ -5,67 +5,126 @@
 #include <iostream>
 #include <algorithm>
 
+using namespace std;
+
 MatchedStorage::MatchedStorage() {}
 
 void MatchedStorage::addMatch(const Matcher& match) {
     matchedList.push_back(match);
 }
 
-void MatchedStorage::displayAllMatches() const {
+void MatchedStorage::displayAllMatches(const vector<string>& unmatchedFreights,
+    const vector<string>& unmatchedCargos) const {
+    cout << "\n===== Matched Freight-Cargo Pairs =====\n";
     if (matchedList.empty()) {
-        std::cout << "No matched freight-cargo pairs.\n";
-        return;
+        cout << "No matched freight-cargo pairs.\n";
     }
-    std::cout << "Matched Freight-Cargo Pairs:\n";
-    for (const auto& match : matchedList) {
-        match.displayMatch();
+    else {
+        for (const auto& match : matchedList) {
+            match.displayMatch();
+        }
+    }
+
+    cout << "\n===== Unmatched Freights =====\n";
+    if (unmatchedFreights.empty()) {
+        cout << "None\n";
+    }
+    else {
+        for (const auto& id : unmatchedFreights) {
+            cout << "- " << id << endl;
+        }
+    }
+
+    cout << "\n===== Unmatched Cargos =====\n";
+    if (unmatchedCargos.empty()) {
+        cout << "None\n";
+    }
+    else {
+        for (const auto& id : unmatchedCargos) {
+            cout << "- " << id << endl;
+        }
     }
 }
 
-void MatchedStorage::saveMatches(const std::string& filename) const {
-    std::ofstream ofs(filename);
+void MatchedStorage::saveMatches(const string& filename,
+    const vector<string>& unmatchedFreights,
+    const vector<string>& unmatchedCargos) const {
+    ofstream ofs(filename);
     if (!ofs) {
-        std::cout << "Error opening file for writing: " << filename << std::endl;
+        cout << "Error opening file for writing: " << filename << endl;
         return;
     }
-    for (const auto& match : matchedList) {
-        ofs << "Freight: " << match.getFreight().getFid()
-            << " (" << match.getFreight().getFlocation() << ", " << match.getFreight().getFtime() << ")"
-            << " <--> "
-            << "Cargo: " << match.getCargo().getCid()
-            << " (" << match.getCargo().getClocation() << ", " << match.getCargo().getCtime() << ")"
-            << std::endl;
+
+    ofs << "===== Matched Freight-Cargo Pairs =====\n";
+    if (matchedList.empty()) {
+        ofs << "No matched freight-cargo pairs.\n";
     }
+    else {
+        for (const auto& match : matchedList) {
+            ofs << "Freight: " << match.getFreight().getFid()
+                << " (" << match.getFreight().getFlocation() << ", " << match.getFreight().getFtime() << ")"
+                << " <--> "
+                << "Cargo: " << match.getCargo().getCid()
+                << " (" << match.getCargo().getClocation() << ", " << match.getCargo().getCtime() << ")"
+                << "\n";
+        }
+    }
+
+    ofs << "\n===== Unmatched Freights =====\n";
+    if (unmatchedFreights.empty()) {
+        ofs << "None\n";
+    }
+    else {
+        for (const auto& fid : unmatchedFreights) {
+            ofs << "- " << fid << "\n";
+        }
+    }
+
+    ofs << "\n===== Unmatched Cargos =====\n";
+    if (unmatchedCargos.empty()) {
+        ofs << "None\n";
+    }
+    else {
+        for (const auto& cid : unmatchedCargos) {
+            ofs << "- " << cid << "\n";
+        }
+    }
+
     ofs.close();
-    std::cout << "Matches saved to " << filename << std::endl;
+    cout << "Matches saved to " << filename << endl;
 }
 
-const std::vector<Matcher>& MatchedStorage::getMatchedList() const {
+
+const vector<Matcher>& MatchedStorage::getMatchedList() const {
     return matchedList;
 }
 
-void MatchedStorage::displayScheduleFile(const std::string& filename) const {
-    std::ifstream inputFile(filename);
+void MatchedStorage::displayScheduleFile(const string& filename) const {
+    ifstream inputFile(filename);
     if (!inputFile) {
-        std::cout << "Error: Could not open file '" << filename << "' for reading." << std::endl;
+        cout << "Error: Could not open file '" << filename << "' for reading." << endl;
         return;
     }
-    std::string line;
-    while (std::getline(inputFile, line)) {
-        std::cout << line << std::endl;
+
+    string line;
+    while (getline(inputFile, line)) {
+        cout << line << endl;
     }
+
     inputFile.close();
 }
 
-void MatchedStorage::generateMatches(const FreightStorage& freightStorage, const CargoStorage& cargoStorage,
-    std::vector<std::string>& unmatchedFreights, std::vector<std::string>& unmatchedCargos) {
+void MatchedStorage::generateMatches(const FreightStorage& freightStorage,
+    const CargoStorage& cargoStorage,
+    vector<string>& unmatchedFreights,
+    vector<string>& unmatchedCargos) {
     matchedList.clear();
     unmatchedFreights.clear();
     unmatchedCargos.clear();
 
     const auto& freights = freightStorage.getFreights();
     const auto& cargos = cargoStorage.getCargoStorage();
-    std::vector<bool> cargoMatched(cargos.size(), false);
+    vector<bool> cargoMatched(cargos.size(), false);
 
     for (const auto& freight : freights) {
         bool foundMatch = false;
@@ -84,6 +143,7 @@ void MatchedStorage::generateMatches(const FreightStorage& freightStorage, const
             unmatchedFreights.push_back(freight.getFid());
         }
     }
+
     for (size_t i = 0; i < cargos.size(); ++i) {
         if (!cargoMatched[i]) {
             unmatchedCargos.push_back(cargos[i].getCid());

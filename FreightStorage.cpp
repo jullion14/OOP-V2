@@ -4,62 +4,98 @@
 #include <algorithm>
 #include <iostream>
 
+using namespace std;
+
 FreightStorage::FreightStorage() {}
 
-void FreightStorage::loadFreightFromFile(const std::string& filename) {
-    std::ifstream infile(filename);
+void FreightStorage::loadFreightFromFile(const string& filename) {
+    ifstream infile(filename);
     if (!infile) {
-        std::cout << "Cannot open file: " << filename << std::endl;
+        cout << "Cannot open file: " << filename << endl;
         return;
     }
-    std::string line;
-    while (std::getline(infile, line)) {
-        std::stringstream ss(line);
-        std::string id, location, timeStr;
-        if (std::getline(ss, id, ',') && std::getline(ss, location, ',') && std::getline(ss, timeStr)) {
-            time_t timeVal = std::stoi(timeStr);
-            Freight freight(id, location, timeVal);
-            addFreight(freight);
+
+    string line;
+    while (getline(infile, line)) {
+        stringstream ss(line);
+        string id, location, timeStr;
+        if (getline(ss, id, ',') && getline(ss, location, ',') && getline(ss, timeStr)) {
+            try {
+                time_t timeVal = stoi(timeStr);
+                Freight freight(id, location, timeVal);  // Constructor handles assignment
+                addFreight(freight);
+            }
+            catch (const exception& e) {
+                cout << "Invalid freight data: " << e.what() << " Line: " << line << endl;
+            }
         }
     }
+
     infile.close();
 }
 
 void FreightStorage::addFreight(const Freight& freight) {
     freights.push_back(freight);
-    // std::cout << "Added Freight: " << freight.getFid() << std::endl;
+    // cout << "Added Freight: " << freight.getFid() << endl;
 }
 
-bool FreightStorage::editFreight(const std::string& id, const std::string& newLocation, time_t newTime) {
+bool FreightStorage::editFreight(const string& id, const string& newLocation, time_t newTime) {
     for (auto& f : freights) {
         if (f.getFid() == id) {
-            f.setFlocation(newLocation);
-            f.setFtime(newTime);
-            std::cout << "Edited Freight: " << id << std::endl;
+            try {
+                f.setFlocation(newLocation);
+                f.setFtime(newTime);
+            }
+            catch (const invalid_argument& e) {
+                cout << "Error: " << e.what() << endl;
+                return false;
+            }
+            cout << "Edited Freight: " << id << endl;
             return true;
         }
     }
-    std::cout << "Freight not found: " << id << std::endl;
+    cout << "Freight not found: " << id << endl;
     return false;
 }
 
-bool FreightStorage::deleteFreight(const std::string& id) {
-    auto it = std::remove_if(freights.begin(), freights.end(),
+bool FreightStorage::deleteFreight(const string& id) {
+    auto it = remove_if(freights.begin(), freights.end(),
         [&id](const Freight& f) { return f.getFid() == id; });
+
     if (it != freights.end()) {
         freights.erase(it, freights.end());
-        std::cout << "Deleted Freight: " << id << std::endl;
+        cout << "Deleted Freight: " << id << endl;
         return true;
     }
-    std::cout << "Freight not found: " << id << std::endl;
+
+    cout << "Freight not found: " << id << endl;
     return false;
 }
 
-void FreightStorage::saveFreightStorage(const std::string& filename) {
-    std::cout << "Saving " << freights.size() << " freights to " << filename << std::endl;
-    // Add file writing logic if needed
+void FreightStorage::saveFreightStorage(const string& filename) {
+    ofstream ofs(filename);
+    if (!ofs) {
+        cout << "Error: Could not open " << filename << " for writing.\n";
+        return;
+    }
+
+    for (const auto& f : freights) {
+        ofs << f.getFid() << "," << f.getFlocation() << "," << f.getFtime() << "\n";
+    }
+
+    ofs.close();
+    cout << "Freight data saved to " << filename << endl;
 }
 
-const std::vector<Freight>& FreightStorage::getFreights() const {
+
+const vector<Freight>& FreightStorage::getFreights() const {
     return freights;
+}
+
+std::string FreightStorage::generateNextFreightId() const {
+    if (freights.empty()) return "F1";
+
+    const string& lastId = freights.back().getFid(); // e.g., "F8"
+    int number = stoi(lastId.substr(1));
+    return "F" + to_string(number + 1);
 }

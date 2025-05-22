@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cctype>
+#include <algorithm>
 #include "FreightStorage.h"
 #include "CargoStorage.h"
 #include "Matcher.h"
@@ -8,17 +10,62 @@
 
 using namespace std;
 
+// Helper: Validate 24-hour time input
+time_t getValidatedTime() {
+    string input;
+    int time = 0;
+
+    while (true) {
+        cout << "Enter Time (e.g. 0900 for 9am): ";
+        getline(cin, input);
+
+        if (input.empty() || !all_of(input.begin(), input.end(), ::isdigit)) {
+            cout << "Invalid input: Enter numbers only.\n";
+            continue;
+        }
+
+        try {
+            time = stoi(input);
+            if (time >= 0 && time <= 2359 && time % 100 < 60)
+                return time;
+            else
+                cout << "Invalid time: Must be in 24-hour format (0000 to 2359).\n";
+        }
+        catch (...) {
+            cout << "Error converting time.\n";
+        }
+    }
+}
+
+// Helper: Validate letters-only location
+string getValidatedLocation() {
+    string location;
+    while (true) {
+        cout << "Enter Location: ";
+        getline(cin, location);
+
+        if (!location.empty() && all_of(location.begin(), location.end(), [](char c) {
+            return isalpha(c) || isspace(c);
+            })) {
+            return location;
+        }
+        else {
+            cout << "Invalid location: Letters and spaces only.\n";
+        }
+    }
+}
+
 int main() {
     FreightStorage freightStorage;
     CargoStorage cargoStorage;
     MatchedStorage matchedStorage;
     vector<string> unmatchedFreights, unmatchedCargos;
 
-    // Load data from files
     freightStorage.loadFreightFromFile("Freight.txt");
     cargoStorage.loadCargoFromFile("Cargo.txt");
 
     string command;
+    int option;
 
     cout << "========== MAIN MENU ==========" << endl;
     while (true) {
@@ -34,120 +81,147 @@ int main() {
             << "10. Save Schedule to File\n"
             << "11. Exit\n"
             << "Select an option: ";
+
         getline(cin, command);
 
-        if (command == "1") {
-            // Print both Cargo and Freight in a table
+        try {
+            option = stoi(command);
+        }
+        catch (...) {
+            cout << "Invalid input. Please enter a number.\n";
+            continue;
+        }
+
+        switch (option) {
+        case 1:
             cargoStorage.printCargoTable(freightStorage);
-        }
-        else if (command == "2") {
-            // Display the contents of the schedule file
+            break;
+
+        case 2:
             matchedStorage.displayScheduleFile("schedule.txt");
+            break;
+
+        case 3: {
+            string id = cargoStorage.generateNextCargoId();
+            cout << "Auto-generated Cargo ID: " << id << endl;
+
+
+            string location = getValidatedLocation();
+            time_t time = getValidatedTime();
+
+            try {
+                Cargo c(id, location, time);
+                cargoStorage.addCargo(c);
+            }
+            catch (const exception& e) {
+                cout << "Error adding cargo: " << e.what() << endl;
+            }
+            break;
         }
-        else if (command == "3") {
-            string id, location, timeStr;
-            time_t timeVal;
-            cout << "Enter Cargo ID: ";
-            getline(cin, id);
-            cout << "Enter Location: ";
-            getline(cin, location);
-            cout << "Enter Time (as integer, e.g. 900 for 9am): ";
-            getline(cin, timeStr);
-            timeVal = stoi(timeStr);
-            Cargo c(id, location, timeVal);
-            cargoStorage.addCargo(c);
-            cout << "Cargo added.\n";
-        }
-        else if (command == "4") {
-            string id, location, timeStr;
-            time_t timeVal;
+
+        case 4: {
+            string id;
             cout << "Enter Cargo ID to edit: ";
             getline(cin, id);
-            cout << "Enter New Location: ";
-            getline(cin, location);
-            cout << "Enter New Time (as integer): ";
-            getline(cin, timeStr);
-            timeVal = stoi(timeStr);
-            if (cargoStorage.editCargo(id, location, timeVal)) {
+
+            string location = getValidatedLocation();
+            time_t time = getValidatedTime();
+
+            if (cargoStorage.editCargo(id, location, time))
                 cout << "Cargo updated.\n";
-            }
-            else {
-                cout << "Cargo not found.\n";
-            }
+            else
+                cout << "Cargo not found or invalid.\n";
+            break;
         }
-        else if (command == "5") {
+
+        case 5: {
             string id;
             cout << "Enter Cargo ID to delete: ";
             getline(cin, id);
-            if (cargoStorage.deleteCargo(id)) {
+            if (cargoStorage.deleteCargo(id))
                 cout << "Cargo deleted.\n";
-            }
-            else {
+            else
                 cout << "Cargo not found.\n";
+            break;
+        }
+
+        case 6: {
+            string id = freightStorage.generateNextFreightId();
+            cout << "Auto-generated Freight ID: " << id << endl;
+
+            string location = getValidatedLocation();
+            time_t time = getValidatedTime();
+
+            try {
+                Freight f(id, location, time);
+                freightStorage.addFreight(f);
             }
+            catch (const exception& e) {
+                cout << "Error adding freight: " << e.what() << endl;
+            }
+            break;
         }
-        else if (command == "6") {
-            string id, location, timeStr;
-            time_t timeVal;
-            cout << "Enter Freight ID: ";
-            getline(cin, id);
-            cout << "Enter Location: ";
-            getline(cin, location);
-            cout << "Enter Time (as integer, e.g. 900 for 9am): ";
-            getline(cin, timeStr);
-            timeVal = stoi(timeStr);
-            Freight f(id, location, timeVal);
-            freightStorage.addFreight(f);
-            cout << "Freight added.\n";
-        }
-        else if (command == "7") {
-            string id, location, timeStr;
-            time_t timeVal;
+
+        case 7: {
+            string id;
             cout << "Enter Freight ID to edit: ";
             getline(cin, id);
-            cout << "Enter New Location: ";
-            getline(cin, location);
-            cout << "Enter New Time (as integer): ";
-            getline(cin, timeStr);
-            timeVal = stoi(timeStr);
-            if (freightStorage.editFreight(id, location, timeVal)) {
+
+            string location = getValidatedLocation();
+            time_t time = getValidatedTime();
+
+            if (freightStorage.editFreight(id, location, time))
                 cout << "Freight updated.\n";
-            }
-            else {
-                cout << "Freight not found.\n";
-            }
+            else
+                cout << "Freight not found or invalid.\n";
+            break;
         }
-        else if (command == "8") {
+
+        case 8: {
             string id;
             cout << "Enter Freight ID to delete: ";
             getline(cin, id);
-            if (freightStorage.deleteFreight(id)) {
+            if (freightStorage.deleteFreight(id))
                 cout << "Freight deleted.\n";
-            }
-            else {
+            else
                 cout << "Freight not found.\n";
-            }
-        }
-        else if (command == "9") {
-            matchedStorage.generateMatches(freightStorage, cargoStorage, unmatchedFreights, unmatchedCargos);
-            matchedStorage.displayAllMatches();
-            cout << "\nUnmatched Freights:\n";
-            for (const auto& fid : unmatchedFreights) cout << fid << endl;
-            cout << "\nUnmatched Cargos:\n";
-            for (const auto& cid : unmatchedCargos) cout << cid << endl;
-        }
-        else if (command == "10") {
-            string filename;
-            cout << "Enter filename to save schedule (e.g., schedule.txt): ";
-            getline(cin, filename);
-            matchedStorage.saveMatches(filename);
-        }
-        else if (command == "11") {
-            cout << "Exiting...\n";
             break;
         }
-        else {
+
+        case 9: {
+            matchedStorage.generateMatches(freightStorage, cargoStorage, unmatchedFreights, unmatchedCargos);
+            matchedStorage.displayAllMatches(unmatchedFreights, unmatchedCargos);
+            break;
+        }
+
+        case 10: {
+            string filename;
+            matchedStorage.saveMatches("schedule.txt", unmatchedFreights, unmatchedCargos);
+            break;
+        }
+
+        case 11: {
+            string choice;
+            cout << "\nDo you want to save changes to Cargo.txt and Freight.txt? (Y/N): ";
+            getline(cin, choice);
+
+            if (choice == "Y" || choice == "y") {
+                cargoStorage.saveCargoStorage("Cargo.txt");
+                freightStorage.saveFreightStorage("Freight.txt");
+                cout << "Changes saved.\n";
+            }
+            else {
+                cout << "Changes not saved.\n";
+            }
+
+            cout << "Exiting...\n";
+            return 0;
+        }
+
+
+        default:
             cout << "Invalid option. Try again.\n";
+            break;
         }
     }
 

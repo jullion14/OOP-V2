@@ -1,5 +1,16 @@
+===== Matched Freight-Cargo Pairs =====
 Freight: F1 (London, 730) <--> Cargo: C1 (London, 730)
 Freight: F2 (Paris, 900) <--> Cargo: C2 (Paris, 900)
 Freight: F4 (Tokyo, 1500) <--> Cargo: C4 (Tokyo, 1500)
 Freight: F6 (Los Angeles, 2100) <--> Cargo: C3 (Los Angeles, 2100)
 Freight: F8 (Singapore, 245) <--> Cargo: C8 (Singapore, 245)
+
+===== Unmatched Freights =====
+- F3
+- F5
+- F7
+
+===== Unmatched Cargos =====
+- C5
+- C6
+- C7

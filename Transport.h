@@ -21,6 +21,4 @@ public:
     void setId(const std::string& newId);
     void setLocation(const std::string& newLocation);
     void setTime(time_t newTime);
-
-    // virtual void readFile();
 };
