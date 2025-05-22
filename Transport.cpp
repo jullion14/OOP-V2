@@ -1,9 +1,11 @@
 #include "Transport.h"
 
 Transport::Transport() : id(""), location(""), time(0) {}
+
 Transport::Transport(const std::string& id, const std::string& location, time_t time)
     : id(id), location(location), time(time) {
 }
+
 Transport::~Transport() {}
 
 std::string Transport::getId() const { return id; }
@@ -15,5 +17,5 @@ void Transport::setLocation(const std::string& newLocation) { location = newLoca
 void Transport::setTime(time_t newTime) { time = newTime; }
 
 //void Transport::readFile() {
-    // To be overridden in derived classes if needed
+//    // To be overridden in derived classes if needed
 //}

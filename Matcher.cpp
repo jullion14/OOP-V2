@@ -1,35 +1,24 @@
 #include "Matcher.h"
-#include <iostream>
 
-Matcher::Matcher()
-    : matchedFreight(), matchedCargo() {
+Matcher::Matcher() {}
+
+Matcher::Matcher(const Freight& f, const Cargo& c)
+    : freight(f), cargo(c) {
 }
 
-Matcher::Matcher(const Freight& freight, const Cargo& cargo)
-    : matchedFreight(freight), matchedCargo(cargo) {
+const Freight& Matcher::getFreight() const {
+    return freight;
 }
 
-Freight Matcher::getFreight() const {
-    return matchedFreight;
-}
-
-Cargo Matcher::getCargo() const {
-    return matchedCargo;
-}
-
-void Matcher::setFreight(const Freight& freight) {
-    matchedFreight = freight;
-}
-
-void Matcher::setCargo(const Cargo& cargo) {
-    matchedCargo = cargo;
+const Cargo& Matcher::getCargo() const {
+    return cargo;
 }
 
 void Matcher::displayMatch() const {
-    std::cout << "Matched Freight: " << matchedFreight.getFid()
-        << " (" << matchedFreight.getFlocation() << ", " << matchedFreight.getFtime() << ")"
+    std::cout << "Freight: " << freight.getFid()
+        << " (" << freight.getFlocation() << ", " << freight.getFtime() << ")"
         << " <--> "
-        << "Cargo: " << matchedCargo.getCid()
-        << " (" << matchedCargo.getClocation() << ", " << matchedCargo.getCtime() << ")"
+        << "Cargo: " << cargo.getCid()
+        << " (" << cargo.getClocation() << ", " << cargo.getCtime() << ")"
         << std::endl;
 }

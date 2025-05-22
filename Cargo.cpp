@@ -1,7 +1,7 @@
 #include "Cargo.h"
-#include <iostream>
 
 Cargo::Cargo() : Transport(), Cid(""), Clocation(""), Ctime(0) {}
+
 Cargo::Cargo(const std::string& id, const std::string& location, time_t time)
     : Transport(id, location, time), Cid(id), Clocation(location), Ctime(time) {
 }
@@ -15,10 +15,14 @@ void Cargo::setClocation(const std::string& location) { Clocation = location; Tr
 void Cargo::setCtime(time_t time) { Ctime = time; Transport::time = time; }
 
 void Cargo::readCargoFile(const std::string& id, const std::string& location, time_t time) {
-    Cid = id; Clocation = location; Ctime = time;
-    Transport::id = id; Transport::location = location; Transport::time = time;
+    Cid = id;
+    Clocation = location;
+    Ctime = time;
+    Transport::id = id;
+    Transport::location = location;
+    Transport::time = time;
 }
 
 //void Cargo::readFile() {
- //   std::cout << "Cargo::readFile() called." << std::endl;
+//    std::cout << "Cargo::readFile() called." << std::endl;
 //}

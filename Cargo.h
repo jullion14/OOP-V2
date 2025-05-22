@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Transport.h"
+#include <string>
 
 class Cargo : public Transport {
 protected:
@@ -20,5 +22,6 @@ public:
     void setCtime(time_t time);
 
     void readCargoFile(const std::string& id, const std::string& location, time_t time);
+
     //void readFile() override;
 };

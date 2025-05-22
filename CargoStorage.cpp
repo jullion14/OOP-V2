@@ -1,7 +1,9 @@
 #include "CargoStorage.h"
+#include "FreightStorage.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 #include <algorithm>
 
 CargoStorage::CargoStorage() {}
@@ -62,4 +64,42 @@ void CargoStorage::saveCargoStorage(const std::string& filename) {
 
 const std::vector<Cargo>& CargoStorage::getCargoStorage() const {
     return cargos;
+}
+
+// Print Cargo and Freight table
+void CargoStorage::printCargoTable(const FreightStorage& freightStorage) const {
+    const auto& freights = freightStorage.getFreights();
+    size_t maxRows = std::max(cargos.size(), freights.size());
+
+    std::cout << std::left << std::setw(10) << "Cargo ID"
+        << std::setw(16) << "Destination"
+        << std::setw(8) << "Time"
+        << "    "
+        << std::setw(12) << "Freight ID"
+        << std::setw(16) << "Refuel Stop"
+        << std::setw(12) << "Refuel Time" << std::endl;
+    std::cout << std::string(34, '=') << "    " << std::string(40, '=') << std::endl;
+
+    for (size_t i = 0; i < maxRows; ++i) {
+        // Cargo columns
+        if (i < cargos.size()) {
+            std::cout << std::left << std::setw(10) << cargos[i].getCid()
+                << std::setw(16) << cargos[i].getClocation()
+                << std::setw(8) << std::setfill('0') << std::setw(4) << cargos[i].getCtime() << std::setfill(' ');
+        }
+        else {
+            std::cout << std::setw(10) << "" << std::setw(16) << "" << std::setw(8) << "";
+        }
+        std::cout << "    ";
+        // Freight columns
+        if (i < freights.size()) {
+            std::cout << std::left << std::setw(12) << freights[i].getFid()
+                << std::setw(16) << freights[i].getFlocation()
+                << std::setw(12) << std::setfill('0') << std::setw(4) << freights[i].getFtime() << std::setfill(' ');
+        }
+        else {
+            std::cout << std::setw(12) << "" << std::setw(16) << "" << std::setw(12) << "";
+        }
+        std::cout << std::endl;
+    }
 }

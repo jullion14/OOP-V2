@@ -1,4 +1,5 @@
 #pragma once
+
 #include <string>
 #include <ctime>
 
@@ -21,5 +22,5 @@ public:
     void setLocation(const std::string& newLocation);
     void setTime(time_t newTime);
 
-   // virtual void readFile();
+    // virtual void readFile();
 };

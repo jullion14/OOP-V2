@@ -1,7 +1,7 @@
 #include "Freight.h"
-#include <iostream>
 
 Freight::Freight() : Transport(), Fid(""), Flocation(""), Ftime(0) {}
+
 Freight::Freight(const std::string& id, const std::string& location, time_t time)
     : Transport(id, location, time), Fid(id), Flocation(location), Ftime(time) {
 }
@@ -15,10 +15,14 @@ void Freight::setFlocation(const std::string& location) { Flocation = location; 
 void Freight::setFtime(time_t time) { Ftime = time; Transport::time = time; }
 
 void Freight::readFreightFile(const std::string& id, const std::string& location, time_t time) {
-    Fid = id; Flocation = location; Ftime = time;
-    Transport::id = id; Transport::location = location; Transport::time = time;
+    Fid = id;
+    Flocation = location;
+    Ftime = time;
+    Transport::id = id;
+    Transport::location = location;
+    Transport::time = time;
 }
 
 //void Freight::readFile() {
-  //  std::cout << "Freight::readFile() called." << std::endl;
+//    std::cout << "Freight::readFile() called." << std::endl;
 //}

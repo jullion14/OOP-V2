@@ -2,21 +2,19 @@
 
 #include "Freight.h"
 #include "Cargo.h"
+#include <iostream>
 
 class Matcher {
 protected:
-    Freight matchedFreight;
-    Cargo matchedCargo;
+    Freight freight;
+    Cargo cargo;
 
 public:
     Matcher();
-    Matcher(const Freight& freight, const Cargo& cargo);
+    Matcher(const Freight& f, const Cargo& c);
 
-    Freight getFreight() const;
-    Cargo getCargo() const;
-
-    void setFreight(const Freight& freight);
-    void setCargo(const Cargo& cargo);
+    const Freight& getFreight() const;
+    const Cargo& getCargo() const;
 
     void displayMatch() const;
 };

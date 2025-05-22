@@ -1,8 +1,6 @@
 #include <iostream>
-#include <iomanip>
-#include <vector>
 #include <string>
-#include <algorithm>
+#include <vector>
 #include "FreightStorage.h"
 #include "CargoStorage.h"
 #include "Matcher.h"
@@ -10,93 +8,13 @@
 
 using namespace std;
 
-// Table display for both Cargo and Freight, side by side
-void printCargoAndFreightTable(const CargoStorage& cargoStorage, const FreightStorage& freightStorage) {
-    const auto& cargos = cargoStorage.getCargoStorage();
-    const auto& freights = freightStorage.getFreights();
-    size_t maxRows = max(cargos.size(), freights.size());
-
-    // Headers
-    cout << left << setw(10) << "Cargo ID"
-        << setw(16) << "Destination"
-        << setw(8) << "Time"
-        << "    "
-        << setw(12) << "Freight ID"
-        << setw(16) << "Refuel Stop"
-        << setw(12) << "Refuel Time" << endl;
-
-    // Separators
-    cout << string(34, '=') << "    " << string(40, '=') << endl;
-
-    // Rows
-    for (size_t i = 0; i < maxRows; ++i) {
-        // Cargo columns
-        if (i < cargos.size()) {
-            cout << left << setw(10) << cargos[i].getCid()
-                << setw(16) << cargos[i].getClocation()
-                << setw(8) << setfill('0') << setw(4) << cargos[i].getCtime() << setfill(' ');
-        }
-        else {
-            cout << setw(10) << "" << setw(16) << "" << setw(8) << "";
-        }
-
-        cout << "    "; // gap between tables
-
-        // Freight columns
-        if (i < freights.size()) {
-            cout << left << setw(12) << freights[i].getFid()
-                << setw(16) << freights[i].getFlocation()
-                << setw(12) << setfill('0') << setw(4) << freights[i].getFtime() << setfill(' ');
-        }
-        else {
-            cout << setw(12) << "" << setw(16) << "" << setw(12) << "";
-        }
-        cout << endl;
-    }
-}
-
-// Simple matching: match by location and time
-void generateMatches(const FreightStorage& freightStorage, const CargoStorage& cargoStorage,
-    MatchedStorage& matchedStorage, vector<string>& unmatchedFreights, vector<string>& unmatchedCargos) {
-    matchedStorage = MatchedStorage(); // Clear previous matches
-    unmatchedFreights.clear();
-    unmatchedCargos.clear();
-
-    const auto& freights = freightStorage.getFreights();
-    const auto& cargos = cargoStorage.getCargoStorage();
-    vector<bool> cargoMatched(cargos.size(), false);
-
-    for (const auto& freight : freights) {
-        bool foundMatch = false;
-        for (size_t i = 0; i < cargos.size(); ++i) {
-            if (!cargoMatched[i] &&
-                freight.getFlocation() == cargos[i].getClocation() &&
-                freight.getFtime() == cargos[i].getCtime()) {
-                Matcher match(freight, cargos[i]);
-                matchedStorage.addMatch(match);
-                cargoMatched[i] = true;
-                foundMatch = true;
-                break;
-            }
-        }
-        if (!foundMatch) {
-            unmatchedFreights.push_back(freight.getFid());
-        }
-    }
-    for (size_t i = 0; i < cargos.size(); ++i) {
-        if (!cargoMatched[i]) {
-            unmatchedCargos.push_back(cargos[i].getCid());
-        }
-    }
-}
-
 int main() {
     FreightStorage freightStorage;
     CargoStorage cargoStorage;
     MatchedStorage matchedStorage;
     vector<string> unmatchedFreights, unmatchedCargos;
 
-    // Load data from current directory
+    // Load data from files
     freightStorage.loadFreightFromFile("Freight.txt");
     cargoStorage.loadCargoFromFile("Cargo.txt");
 
@@ -119,10 +37,12 @@ int main() {
         getline(cin, command);
 
         if (command == "1") {
-            printCargoAndFreightTable(cargoStorage, freightStorage);
+            // Print both Cargo and Freight in a table
+            cargoStorage.printCargoTable(freightStorage);
         }
         else if (command == "2") {
-            matchedStorage.displayAllMatches();
+            // Display the contents of the schedule file
+            matchedStorage.displayScheduleFile("schedule.txt");
         }
         else if (command == "3") {
             string id, location, timeStr;
@@ -209,7 +129,7 @@ int main() {
             }
         }
         else if (command == "9") {
-            generateMatches(freightStorage, cargoStorage, matchedStorage, unmatchedFreights, unmatchedCargos);
+            matchedStorage.generateMatches(freightStorage, cargoStorage, unmatchedFreights, unmatchedCargos);
             matchedStorage.displayAllMatches();
             cout << "\nUnmatched Freights:\n";
             for (const auto& fid : unmatchedFreights) cout << fid << endl;

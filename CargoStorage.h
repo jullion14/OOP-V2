@@ -1,7 +1,11 @@
 #pragma once
+
 #include "Cargo.h"
 #include <vector>
 #include <string>
+#include <iostream>
+
+class FreightStorage; // Forward declaration
 
 class CargoStorage {
 protected:
@@ -16,4 +20,7 @@ public:
     bool deleteCargo(const std::string& id);
     void saveCargoStorage(const std::string& filename);
     const std::vector<Cargo>& getCargoStorage() const;
+
+    // Table display function
+    void printCargoTable(const FreightStorage& freightStorage) const;
 };

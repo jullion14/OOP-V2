@@ -1,20 +1,5 @@
-Matched Schedules:
-Freight ID     Cargo ID       
-------------------------------
-F01            C01            
-F02            C02            
-F03            C05            
-F04            C04            
-F05            C07            
-F06            C03            
-F08            C08            
-
-Unmatched Freights:
-ID        Refuel Stop         Time      
-----------------------------------------
-F07       Beijing             2400      
-
-Unassigned Cargos:
-ID        Destination         Time      
-----------------------------------------
-C06       Beijing             2100      
+Freight: F1 (London, 730) <--> Cargo: C1 (London, 730)
+Freight: F2 (Paris, 900) <--> Cargo: C2 (Paris, 900)
+Freight: F4 (Tokyo, 1500) <--> Cargo: C4 (Tokyo, 1500)
+Freight: F6 (Los Angeles, 2100) <--> Cargo: C3 (Los Angeles, 2100)
+Freight: F8 (Singapore, 245) <--> Cargo: C8 (Singapore, 245)

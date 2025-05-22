@@ -1,7 +1,9 @@
 #pragma once
+
 #include "Freight.h"
 #include <vector>
 #include <string>
+#include <iostream>
 
 class FreightStorage {
 protected:
