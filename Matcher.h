@@ -1,5 +1,8 @@
 #pragma once
-class Matcher
+#include "Freight.h"
+#include "Cargo.h"
+class Matcher : protected Freight, Cargo
 {
+	
 };
 
