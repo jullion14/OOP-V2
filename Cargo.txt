@@ -1,0 +1,8 @@
+C1,London,0730
+C2,Paris,0900
+C3,Los Angeles,2100
+C4,Tokyo,1500
+C5,New York,1800
+C6,Beijing,2100
+C7,Sydney,2400
+C8,Singapore,0245

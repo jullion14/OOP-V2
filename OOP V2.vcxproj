@@ -145,6 +145,11 @@
     <ClCompile Include="Matcher.cpp" />
     <ClCompile Include="Transport.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Cargo.txt" />
+    <Text Include="Freight.txt" />
+    <Text Include="schedule.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

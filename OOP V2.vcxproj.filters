@@ -63,4 +63,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Cargo.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Freight.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="schedule.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
 </Project>
