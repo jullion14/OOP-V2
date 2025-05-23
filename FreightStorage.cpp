@@ -41,7 +41,12 @@ void FreightStorage::addFreight(const Freight& freight) {
 
 bool FreightStorage::editFreight(const string& id, const string& newLocation, time_t newTime) {
     for (auto& f : freights) {
-        if (f.getFid() == id) {
+        string fid = f.getFid();
+        string uid = id;
+        transform(fid.begin(), fid.end(), fid.begin(), ::toupper);
+        transform(uid.begin(), uid.end(), uid.begin(), ::toupper);
+
+        if (fid == uid) {                     // case-insensitive match
             try {
                 f.setFlocation(newLocation);
                 f.setFtime(newTime);
@@ -50,7 +55,7 @@ bool FreightStorage::editFreight(const string& id, const string& newLocation, ti
                 cout << "Error: " << e.what() << endl;
                 return false;
             }
-            cout << "Edited Freight: " << id << endl;
+            cout << "Edited Freight: " << f.getFid() << endl;
             return true;
         }
     }
@@ -101,8 +106,13 @@ std::string FreightStorage::generateNextFreightId() const {
 }
 
 bool FreightStorage::exists(const string& id) const {
+    string query = id;
+    transform(query.begin(), query.end(), query.begin(), ::toupper);
+
     for (const auto& f : freights) {
-        if (f.getFid() == id)
+        string fid = f.getFid();
+        transform(fid.begin(), fid.end(), fid.begin(), ::toupper);
+        if (fid == query)
             return true;
     }
     return false;

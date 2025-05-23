@@ -121,24 +121,31 @@ int main() {
 
         case 4: {
             string id;
-            
-            do {
-                cout << "Enter Cargo ID to edit: ";
+
+            while (true) {
+                cout << "Enter Cargo ID to edit (blank = cancel): ";
                 getline(cin, id);
-                if (id.empty()) {
-                    cout << "Cargo ID cannot be empty. Please try again.\n";
-                }
-            } while (id.empty());
+
+                if (id.empty()) break;                    // leave loop then cancel
+                if (cargoStorage.exists(id)) break;       // found then continue below
+
+                cout << "Cargo not found. Try again.\n";
+            }
+            if (id.empty()) {                             // cancelled
+                cout << "No ID entered - returning to main menu.\n";
+                break;
+            }
 
             string location = getValidatedLocation();
-            time_t time = getValidatedTime();
+            time_t timeVal = getValidatedTime();
 
-            if (cargoStorage.editCargo(id, location, time))
+            if (cargoStorage.editCargo(id, location, timeVal))
                 cout << "Cargo updated.\n";
             else
-                cout << "Cargo not found or invalid.\n";
+                cout << "Update failed (data invalid).\n";
             break;
         }
+
 
         case 5: {
             string id;
@@ -195,21 +202,28 @@ int main() {
 
         case 7: {
             string id;
-            do {
-                cout << "Enter Freight ID to edit: ";
+
+            while (true) {
+                cout << "Enter Freight ID to edit (blank = cancel): ";
                 getline(cin, id);
-                if (id.empty()) {
-                    cout << "Freight ID cannot be empty. Please try again.\n";
-                }
-            } while (id.empty());
+
+                if (id.empty()) break;
+                if (freightStorage.exists(id)) break;
+
+                cout << "Freight not found. Try again.\n";
+            }
+            if (id.empty()) {
+                cout << "No ID entered - returning to main menu.\n";
+                break;
+            }
 
             string location = getValidatedLocation();
-            time_t time = getValidatedTime();
+            time_t timeVal = getValidatedTime();
 
-            if (freightStorage.editFreight(id, location, time))
+            if (freightStorage.editFreight(id, location, timeVal))
                 cout << "Freight updated.\n";
             else
-                cout << "Freight not found or invalid.\n";
+                cout << "Update failed (data invalid).\n";
             break;
         }
 

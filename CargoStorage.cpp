@@ -41,7 +41,12 @@ void CargoStorage::addCargo(const Cargo& cargo) {
 
 bool CargoStorage::editCargo(const string& id, const string& newLocation, time_t newTime) {
     for (auto& c : cargos) {
-        if (c.getCid() == id) {
+        string cid = c.getCid();
+        string uid = id;
+        transform(cid.begin(), cid.end(), cid.begin(), ::toupper);
+        transform(uid.begin(), uid.end(), uid.begin(), ::toupper);
+
+        if (cid == uid) {                     // case-insensitive match
             try {
                 c.setClocation(newLocation);
                 c.setCtime(newTime);
@@ -50,7 +55,7 @@ bool CargoStorage::editCargo(const string& id, const string& newLocation, time_t
                 cout << "Error: " << e.what() << endl;
                 return false;
             }
-            cout << "Edited Cargo: " << id << endl;
+            cout << "Edited Cargo: " << c.getCid() << endl;
             return true;
         }
     }
@@ -153,8 +158,13 @@ string CargoStorage::generateNextCargoId() const {
 }
 
 bool CargoStorage::exists(const string& id) const {
+    string query = id;
+    transform(query.begin(), query.end(), query.begin(), ::toupper);
+
     for (const auto& c : cargos) {
-        if (c.getCid() == id)
+        string cid = c.getCid();
+        transform(cid.begin(), cid.end(), cid.begin(), ::toupper);
+        if (cid == query)
             return true;
     }
     return false;
