@@ -63,17 +63,23 @@ bool CargoStorage::editCargo(const string& id, const string& newLocation, time_t
     return false;
 }
 
-bool CargoStorage::deleteCargo(const string& id) {
-    auto it = remove_if(cargos.begin(), cargos.end(),
-        [&id](const Cargo& c) { return c.getCid() == id; });
+bool CargoStorage::deleteCargo(const std::string& id)
+{
+    std::string query = id;
+    std::transform(query.begin(), query.end(), query.begin(), ::toupper);
+
+    auto it = std::remove_if(cargos.begin(), cargos.end(),
+        [&](const Cargo& c)
+        {
+            std::string cid = c.getCid();
+            std::transform(cid.begin(), cid.end(), cid.begin(), ::toupper);
+            return cid == query;                // case-insensitive match
+        });
 
     if (it != cargos.end()) {
         cargos.erase(it, cargos.end());
-        cout << "Deleted Cargo: " << id << endl;
         return true;
     }
-
-    cout << "Cargo not found: " << id << endl;
     return false;
 }
 

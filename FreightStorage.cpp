@@ -63,17 +63,23 @@ bool FreightStorage::editFreight(const string& id, const string& newLocation, ti
     return false;
 }
 
-bool FreightStorage::deleteFreight(const string& id) {
-    auto it = remove_if(freights.begin(), freights.end(),
-        [&id](const Freight& f) { return f.getFid() == id; });
+bool FreightStorage::deleteFreight(const std::string& id)
+{
+    std::string query = id;
+    std::transform(query.begin(), query.end(), query.begin(), ::toupper);
+
+    auto it = std::remove_if(freights.begin(), freights.end(),
+        [&](const Freight& f)
+        {
+            std::string fid = f.getFid();
+            std::transform(fid.begin(), fid.end(), fid.begin(), ::toupper);
+            return fid == query;                // case-insensitive match
+        });
 
     if (it != freights.end()) {
         freights.erase(it, freights.end());
-        cout << "Deleted Freight: " << id << endl;
         return true;
     }
-
-    cout << "Freight not found: " << id << endl;
     return false;
 }
 

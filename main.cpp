@@ -149,37 +149,38 @@ int main() {
 
         case 5: {
             string id;
-            do {
-                cout << "Enter Cargo ID to delete: ";
-                getline(cin, id);
-                if (id.empty()) {
-                    cout << "Cargo ID cannot be empty. Please try again.\n";
-                }
-            } while (id.empty());
 
-            if (!cargoStorage.exists(id)) {
-                cout << "Cargo not found.\n";
+            while (true) {
+                cout << "Enter Cargo ID to delete (blank = cancel): ";
+                getline(cin, id);
+
+                if (id.empty()) {
+                    cout << "No ID entered - returning to main menu.\n";
+                    break;                               //  back to menu
+                }
+                if (cargoStorage.exists(id))             // case-insensitive
+                    break;
+
+                cout << "Cargo not found. Try again.\n";
+            }
+            if (id.empty()) break;                       // user cancelled earlier
+
+            /* --- confirmation loop --- */
+            string yn;
+            do {
+                cout << "Delete Cargo " << id << "? (y/n): ";
+                getline(cin, yn);
+            } while (yn != "y" && yn != "Y" && yn != "n" && yn != "N");
+
+            if (yn == "n" || yn == "N") {
+                cout << "Deletion cancelled.\n";
                 break;
             }
 
-            string confirm;
-            do {
-                cout << "Are you sure you want to delete Cargo " << id << "? (Y/N): ";
-                getline(cin, confirm);
-                if (!confirm.empty()) {
-                    confirm[0] = tolower(confirm[0]);
-                }
-            } while (confirm != "y" && confirm != "n");
-
-            if (confirm == "y") {
-                if (cargoStorage.deleteCargo(id))
-                    cout << "Cargo deleted.\n";
-                else
-                    cout << "Failed to delete cargo.\n";
-            }
-            else {
-                cout << "Deletion cancelled.\n";
-            }
+            if (cargoStorage.deleteCargo(id))
+                cout << "Cargo deleted.\n";
+            else
+                cout << "Delete failed.\n";
             break;
         }
 
@@ -229,37 +230,38 @@ int main() {
 
         case 8: {
             string id;
-            do {
-                cout << "Enter Freight ID to delete: ";
-                getline(cin, id);
-                if (id.empty()) {
-                    cout << "Freight ID cannot be empty. Please try again.\n";
-                }
-            } while (id.empty());
 
-            if (!freightStorage.exists(id)) {
-                cout << "Freight not found.\n";
+            while (true) {
+                cout << "Enter Freight ID to delete (blank = cancel): ";
+                getline(cin, id);
+
+                if (id.empty()) {
+                    cout << "No ID entered - returning to main menu.\n";
+                    break;
+                }
+                if (freightStorage.exists(id))
+                    break;
+
+                cout << "Freight not found. Try again.\n";
+            }
+            if (id.empty()) break;
+
+            /* --- confirmation loop --- */
+            string yn;
+            do {
+                cout << "Delete Freight " << id << "? (y/n): ";
+                getline(cin, yn);
+            } while (yn != "y" && yn != "Y" && yn != "n" && yn != "N");
+
+            if (yn == "n" || yn == "N") {
+                cout << "Deletion cancelled.\n";
                 break;
             }
 
-            string confirm;
-            do {
-                cout << "Are you sure you want to delete Freight " << id << "? (Y/N): ";
-                getline(cin, confirm);
-                if (!confirm.empty()) {
-                    confirm[0] = tolower(confirm[0]);
-                }
-            } while (confirm != "y" && confirm != "n");
-
-            if (confirm == "y") {
-                if (freightStorage.deleteFreight(id))
-                    cout << "Freight deleted.\n";
-                else
-                    cout << "Failed to delete freight.\n";
-            }
-            else {
-                cout << "Deletion cancelled.\n";
-            }
+            if (freightStorage.deleteFreight(id))
+                cout << "Freight deleted.\n";
+            else
+                cout << "Delete failed.\n";
             break;
         }
 
