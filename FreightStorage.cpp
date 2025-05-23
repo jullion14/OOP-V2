@@ -99,3 +99,11 @@ std::string FreightStorage::generateNextFreightId() const {
     int number = stoi(lastId.substr(1));
     return "F" + to_string(number + 1);
 }
+
+bool FreightStorage::exists(const string& id) const {
+    for (const auto& f : freights) {
+        if (f.getFid() == id)
+            return true;
+    }
+    return false;
+}

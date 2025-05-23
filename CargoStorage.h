@@ -24,5 +24,5 @@ public:
     const vector<Cargo>& getCargoStorage() const;
     void printCargoTable(const FreightStorage& freightStorage) const;
     string generateNextCargoId() const;
-
+    bool exists(const string& id) const;
 };

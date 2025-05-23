@@ -21,4 +21,5 @@ public:
     void saveFreightStorage(const string& filename);
     const vector<Freight>& getFreights() const;
     string generateNextFreightId() const;
+    bool exists(const string& id) const;
 };

@@ -121,8 +121,14 @@ int main() {
 
         case 4: {
             string id;
-            cout << "Enter Cargo ID to edit: ";
-            getline(cin, id);
+            
+            do {
+                cout << "Enter Cargo ID to edit: ";
+                getline(cin, id);
+                if (id.empty()) {
+                    cout << "Cargo ID cannot be empty. Please try again.\n";
+                }
+            } while (id.empty());
 
             string location = getValidatedLocation();
             time_t time = getValidatedTime();
@@ -136,12 +142,37 @@ int main() {
 
         case 5: {
             string id;
-            cout << "Enter Cargo ID to delete: ";
-            getline(cin, id);
-            if (cargoStorage.deleteCargo(id))
-                cout << "Cargo deleted.\n";
-            else
+            do {
+                cout << "Enter Cargo ID to delete: ";
+                getline(cin, id);
+                if (id.empty()) {
+                    cout << "Cargo ID cannot be empty. Please try again.\n";
+                }
+            } while (id.empty());
+
+            if (!cargoStorage.exists(id)) {
                 cout << "Cargo not found.\n";
+                break;
+            }
+
+            string confirm;
+            do {
+                cout << "Are you sure you want to delete Cargo " << id << "? (Y/N): ";
+                getline(cin, confirm);
+                if (!confirm.empty()) {
+                    confirm[0] = tolower(confirm[0]);
+                }
+            } while (confirm != "y" && confirm != "n");
+
+            if (confirm == "y") {
+                if (cargoStorage.deleteCargo(id))
+                    cout << "Cargo deleted.\n";
+                else
+                    cout << "Failed to delete cargo.\n";
+            }
+            else {
+                cout << "Deletion cancelled.\n";
+            }
             break;
         }
 
@@ -164,8 +195,13 @@ int main() {
 
         case 7: {
             string id;
-            cout << "Enter Freight ID to edit: ";
-            getline(cin, id);
+            do {
+                cout << "Enter Freight ID to edit: ";
+                getline(cin, id);
+                if (id.empty()) {
+                    cout << "Freight ID cannot be empty. Please try again.\n";
+                }
+            } while (id.empty());
 
             string location = getValidatedLocation();
             time_t time = getValidatedTime();
@@ -179,12 +215,37 @@ int main() {
 
         case 8: {
             string id;
-            cout << "Enter Freight ID to delete: ";
-            getline(cin, id);
-            if (freightStorage.deleteFreight(id))
-                cout << "Freight deleted.\n";
-            else
+            do {
+                cout << "Enter Freight ID to delete: ";
+                getline(cin, id);
+                if (id.empty()) {
+                    cout << "Freight ID cannot be empty. Please try again.\n";
+                }
+            } while (id.empty());
+
+            if (!freightStorage.exists(id)) {
                 cout << "Freight not found.\n";
+                break;
+            }
+
+            string confirm;
+            do {
+                cout << "Are you sure you want to delete Freight " << id << "? (Y/N): ";
+                getline(cin, confirm);
+                if (!confirm.empty()) {
+                    confirm[0] = tolower(confirm[0]);
+                }
+            } while (confirm != "y" && confirm != "n");
+
+            if (confirm == "y") {
+                if (freightStorage.deleteFreight(id))
+                    cout << "Freight deleted.\n";
+                else
+                    cout << "Failed to delete freight.\n";
+            }
+            else {
+                cout << "Deletion cancelled.\n";
+            }
             break;
         }
 

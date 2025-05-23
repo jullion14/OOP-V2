@@ -152,3 +152,11 @@ string CargoStorage::generateNextCargoId() const {
     return "C" + to_string(number + 1);             // e.g., C10
 }
 
+bool CargoStorage::exists(const string& id) const {
+    for (const auto& c : cargos) {
+        if (c.getCid() == id)
+            return true;
+    }
+    return false;
+}
+
