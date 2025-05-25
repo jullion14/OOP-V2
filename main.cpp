@@ -69,7 +69,7 @@ int main() {
 
     cout << "========== MAIN MENU ==========" << endl;
     while (true) {
-        cout << "\n1. View Cargo\n"
+        cout << "\n1. View Cargo and Frieght\n"
             << "2. View Schedule\n"
             << "3. Add Cargo\n"
             << "4. Edit Cargo\n"
