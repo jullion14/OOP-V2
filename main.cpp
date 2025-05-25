@@ -3,6 +3,7 @@
 #include <vector>
 #include <cctype>
 #include <algorithm>
+#include <sstream>
 #include "FreightStorage.h"
 #include "CargoStorage.h"
 #include "Matcher.h"
@@ -42,16 +43,34 @@ time_t getValidatedTime() {
 }
 
 // Helper: Validate letters-only location
+string capitalizeWords(const string& input) {
+    stringstream ss(input);
+    string word, result;
+
+    while (ss >> word) {
+        // Capitalize first letter, lowercase the rest
+        transform(word.begin(), word.end(), word.begin(), ::tolower);
+        word[0] = toupper(word[0]);
+
+        if (!result.empty())
+            result += " ";
+        result += word;
+    }
+
+    return result;
+}
+
 string getValidatedLocation() {
     string location;
     while (true) {
         cout << "Enter Location: ";
         getline(cin, location);
 
+        // Check for non-empty string with only letters and spaces
         if (!location.empty() && all_of(location.begin(), location.end(), [](char c) {
             return isalpha(c) || isspace(c);
             })) {
-            return location;
+            return capitalizeWords(location);
         }
         else {
             cout << "Invalid location: Letters and spaces only.\n";
