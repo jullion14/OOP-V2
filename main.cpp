@@ -19,14 +19,18 @@ time_t getValidatedTime() {
         cout << "Enter Time (e.g. 0900 for 9am): ";
         getline(cin, input);
 
-        if (input.empty() || !all_of(input.begin(), input.end(), ::isdigit)) {
-            cout << "Invalid input: Enter numbers only.\n";
+        // Check for 4-digit numeric input
+        if (input.length() != 4 || !all_of(input.begin(), input.end(), ::isdigit)) {
+            cout << "Invalid input: Enter a 4-digit number only.\n";
             continue;
         }
 
         try {
             time = stoi(input);
-            if (time >= 0 && time <= 2359 && time % 100 < 60)
+            int hours = time / 100;
+            int minutes = time % 100;
+
+            if (hours >= 0 && hours < 24 && minutes >= 0 && minutes < 60)
                 return time;
             else
                 cout << "Invalid time: Must be in 24-hour format (0000 to 2359).\n";
