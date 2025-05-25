@@ -13,8 +13,12 @@ void MatchedStorage::addMatch(const Matcher& match) {
     matchedList.push_back(match);
 }
 
-void MatchedStorage::displayAllMatches(const vector<string>& unmatchedFreights,
-    const vector<string>& unmatchedCargos) const {
+void MatchedStorage::displayAllMatches(
+    const vector<string>& unmatchedFreights,
+    const vector<string>& unmatchedCargos,
+    const FreightStorage& freightStorage,
+    const CargoStorage& cargoStorage) const
+{
     cout << "\n===== Matched Freight-Cargo Pairs =====\n";
     if (matchedList.empty()) {
         cout << "No matched freight-cargo pairs.\n";
@@ -25,23 +29,31 @@ void MatchedStorage::displayAllMatches(const vector<string>& unmatchedFreights,
         }
     }
 
+    // ===== Unmatched Freights =====
     cout << "\n===== Unmatched Freights =====\n";
     if (unmatchedFreights.empty()) {
         cout << "None\n";
     }
     else {
         for (const auto& id : unmatchedFreights) {
-            cout << "- " << id << endl;
+            const Freight* f = freightStorage.getFreightById(id);
+            if (f) {
+                cout << "- " << f->getFid() << " (" << f->getFlocation() << ", " << f->getFtime() << ")\n";
+            }
         }
     }
 
+    // ===== Unmatched Cargos =====
     cout << "\n===== Unmatched Cargos =====\n";
     if (unmatchedCargos.empty()) {
         cout << "None\n";
     }
     else {
         for (const auto& id : unmatchedCargos) {
-            cout << "- " << id << endl;
+            const Cargo* c = cargoStorage.getCargoById(id);
+            if (c) {
+                cout << "- " << c->getCid() << " (" << c->getClocation() << ", " << c->getCtime() << ")\n";
+            }
         }
     }
 }

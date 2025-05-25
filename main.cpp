@@ -90,9 +90,10 @@ int main() {
     string command;
     int option;
 
-    cout << "========== MAIN MENU ==========" << endl;
+    
     while (true) {
-        cout << "\n1. View Cargo and Frieght\n"
+        cout << "\n========== MAIN MENU ==========\n"
+            << "1. View Cargo and Freight\n"
             << "2. View Schedule\n"
             << "3. Add Cargo\n"
             << "4. Edit Cargo\n"
@@ -290,7 +291,7 @@ int main() {
 
         case 9: {
             matchedStorage.generateMatches(freightStorage, cargoStorage, unmatchedFreights, unmatchedCargos);
-            matchedStorage.displayAllMatches(unmatchedFreights, unmatchedCargos);
+            matchedStorage.displayAllMatches(unmatchedFreights, unmatchedCargos, freightStorage, cargoStorage);
             break;
         }
 

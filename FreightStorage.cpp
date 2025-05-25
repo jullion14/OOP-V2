@@ -123,3 +123,10 @@ bool FreightStorage::exists(const string& id) const {
     }
     return false;
 }
+const Freight* FreightStorage::getFreightById(const string& id) const {
+    for (const auto& f : freights) {
+        if (f.getFid() == id)
+            return &f;
+    }
+    return nullptr;
+}

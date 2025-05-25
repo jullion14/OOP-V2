@@ -19,7 +19,12 @@ public:
     MatchedStorage();
 
     void addMatch(const Matcher& match);
-    void displayAllMatches(const vector<string>& unmatchedFreights, const vector<string>& unmatchedCargos) const;
+    void displayAllMatches(
+        const std::vector<std::string>& unmatchedFreights,
+        const std::vector<std::string>& unmatchedCargos,
+        const FreightStorage& freightStorage,
+        const CargoStorage& cargoStorage
+    ) const;
     void saveMatches(const string& filename,
         const vector<string>& unmatchedFreights,
         const vector<string>& unmatchedCargos) const;

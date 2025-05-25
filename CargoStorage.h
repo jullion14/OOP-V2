@@ -25,4 +25,5 @@ public:
     void printCargoTable(const FreightStorage& freightStorage) const;
     string generateNextCargoId() const;
     bool exists(const string& id) const;
+    const Cargo* getCargoById(const string& id) const;
 };

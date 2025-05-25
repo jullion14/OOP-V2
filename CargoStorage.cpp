@@ -175,4 +175,10 @@ bool CargoStorage::exists(const string& id) const {
     }
     return false;
 }
-
+const Cargo* CargoStorage::getCargoById(const string& id) const {
+    for (const auto& c : cargos) {
+        if (c.getCid() == id)
+            return &c;
+    }
+    return nullptr;
+}
