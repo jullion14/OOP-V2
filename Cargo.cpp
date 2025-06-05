@@ -1,6 +1,7 @@
 #include "Cargo.h"
 #include <regex>
 #include <stdexcept>
+#include <iostream>
 
 Cargo::Cargo() : Transport() {}
 
@@ -38,4 +39,10 @@ void Cargo::setCtime(time_t time) {
         throw std::invalid_argument("Time must be in 24-hour format (0000 to 2359, valid minutes).");
     }
     setTime(time);  
+}
+
+void Cargo::printInfo(std::ostream& out) const {
+    out << "[Cargo] ID: " << getCid()
+        << ", Location: " << getClocation()
+        << ", Time: " << getCtime() << "\n";
 }

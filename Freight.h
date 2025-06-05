@@ -2,6 +2,7 @@
 
 #include "Transport.h"
 #include <string>
+#include <iostream> 
 
 using namespace std;
 
@@ -17,4 +18,6 @@ public:
     void setFid(const string& id);
     void setFlocation(const string& location);
     void setFtime(time_t time);
+
+    void printInfo(std::ostream& out = std::cout) const override;
 };

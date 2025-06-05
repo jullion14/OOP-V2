@@ -130,3 +130,6 @@ const Freight* FreightStorage::getFreightById(const string& id) const {
     }
     return nullptr;
 }
+const std::vector<Freight>& FreightStorage::getFreightList() const {
+    return freights;
+}

@@ -1,6 +1,7 @@
 #include "Freight.h"
 #include <regex>
 #include <stdexcept>
+#include <iostream>
 
 using namespace std;
 
@@ -42,4 +43,9 @@ void Freight::setFtime(time_t time) {
         throw invalid_argument("Time must be in 24-hour format (0000 to 2359, valid minutes).");
     }
     setTime(time);
+}
+void Freight::printInfo(std::ostream& out) const {
+    out << "[Freight] ID: " << getFid()
+        << ", Location: " << getFlocation()
+        << ", Time: " << getFtime() << "\n";
 }

@@ -182,3 +182,6 @@ const Cargo* CargoStorage::getCargoById(const string& id) const {
     }
     return nullptr;
 }
+const std::vector<Cargo>& CargoStorage::getCargoList() const {
+    return cargos;
+}

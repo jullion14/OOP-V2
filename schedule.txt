@@ -1,16 +1,30 @@
 ===== Matched Freight-Cargo Pairs =====
-Freight: F1 (London, 730) <--> Cargo: C1 (London, 730)
-Freight: F2 (Paris, 900) <--> Cargo: C2 (Paris, 900)
-Freight: F4 (Tokyo, 1500) <--> Cargo: C4 (Tokyo, 1500)
-Freight: F6 (Los Angeles, 2100) <--> Cargo: C3 (Los Angeles, 2100)
-Freight: F8 (Singapore, 245) <--> Cargo: C8 (Singapore, 245)
+[MATCH]
+[Freight] ID: F1, Location: London, Time: 730
+[Cargo] ID: C1, Location: London, Time: 730
+
+[MATCH]
+[Freight] ID: F2, Location: Paris, Time: 900
+[Cargo] ID: C2, Location: Paris, Time: 900
+
+[MATCH]
+[Freight] ID: F4, Location: Tokyo, Time: 1500
+[Cargo] ID: C4, Location: Tokyo, Time: 1500
+
+[MATCH]
+[Freight] ID: F6, Location: Los Angeles, Time: 2100
+[Cargo] ID: C3, Location: Los Angeles, Time: 2100
+
 
 ===== Unmatched Freights =====
 - F3
 - F5
 - F7
+- F8
 
 ===== Unmatched Cargos =====
 - C5
 - C6
 - C7
+- C8
+- C9

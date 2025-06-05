@@ -23,4 +23,6 @@ public:
     string generateNextFreightId() const;
     bool exists(const string& id) const;
     const Freight* getFreightById(const string& id) const;
+    const std::vector<Freight>& getFreightList() const;
+
 };

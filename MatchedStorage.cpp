@@ -1,6 +1,9 @@
 #include "MatchedStorage.h"
 #include "FreightStorage.h"
 #include "CargoStorage.h"
+#include "Freight.h"
+#include "Cargo.h"
+#include "Transport.h"
 #include <fstream>
 #include <iostream>
 #include <algorithm>
@@ -25,7 +28,16 @@ void MatchedStorage::displayAllMatches(
     }
     else {
         for (const auto& match : matchedList) {
-            match.displayMatch();
+            Transport* t1 = new Freight(match.getFreight());
+            Transport* t2 = new Cargo(match.getCargo());
+
+            cout << "[MATCH]\n";
+            t1->printInfo();
+            t2->printInfo();
+            cout << endl;
+
+            delete t1;
+            delete t2;
         }
     }
 
@@ -38,7 +50,9 @@ void MatchedStorage::displayAllMatches(
         for (const auto& id : unmatchedFreights) {
             const Freight* f = freightStorage.getFreightById(id);
             if (f) {
-                cout << "- " << f->getFid() << " (" << f->getFlocation() << ", " << f->getFtime() << ")\n";
+                Transport* t = new Freight(*f);
+                t->printInfo();
+                delete t;
             }
         }
     }
@@ -52,7 +66,9 @@ void MatchedStorage::displayAllMatches(
         for (const auto& id : unmatchedCargos) {
             const Cargo* c = cargoStorage.getCargoById(id);
             if (c) {
-                cout << "- " << c->getCid() << " (" << c->getClocation() << ", " << c->getCtime() << ")\n";
+                Transport* t = new Cargo(*c);
+                t->printInfo();
+                delete t;
             }
         }
     }
@@ -73,12 +89,16 @@ void MatchedStorage::saveMatches(const string& filename,
     }
     else {
         for (const auto& match : matchedList) {
-            ofs << "Freight: " << match.getFreight().getFid()
-                << " (" << match.getFreight().getFlocation() << ", " << match.getFreight().getFtime() << ")"
-                << " <--> "
-                << "Cargo: " << match.getCargo().getCid()
-                << " (" << match.getCargo().getClocation() << ", " << match.getCargo().getCtime() << ")"
-                << "\n";
+            Transport* t1 = new Freight(match.getFreight());
+            Transport* t2 = new Cargo(match.getCargo());
+
+            ofs << "[MATCH]\n";
+            t1->printInfo(ofs);
+            t2->printInfo(ofs);
+            ofs << "\n";
+
+            delete t1;
+            delete t2;
         }
     }
 

@@ -26,4 +26,6 @@ public:
     string generateNextCargoId() const;
     bool exists(const string& id) const;
     const Cargo* getCargoById(const string& id) const;
+    const std::vector<Cargo>& getCargoList() const;
+
 };

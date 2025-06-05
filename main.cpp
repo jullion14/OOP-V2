@@ -8,6 +8,8 @@
 #include "CargoStorage.h"
 #include "Matcher.h"
 #include "MatchedStorage.h"
+#include "Cargo.h"
+#include "Freight.h"
 
 using namespace std;
 
@@ -318,13 +320,9 @@ int main() {
             cout << "Exiting...\n";
             return 0;
         }
-
-
         default:
             cout << "Invalid option. Try again.\n";
             break;
         }
     }
-
-    return 0;
 }
