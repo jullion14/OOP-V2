@@ -1,38 +1,21 @@
-#pragma once
+#ifndef MATCHEDSTORAGE_H
+#define MATCHEDSTORAGE_H
 
-#include "Matcher.h"
 #include <vector>
 #include <string>
-#include <iostream>
-#include <fstream>
-
-using namespace std;
-
-class FreightStorage;
-class CargoStorage;
+#include "Matcher.h"
+#include "FreightStorage.h"
+#include "CargoStorage.h"
 
 class MatchedStorage {
-protected:
-    vector<Matcher> matchedList;
-
+    std::vector<Matcher> matchedList_;
 public:
-    MatchedStorage();
-
-    void addMatch(const Matcher& match);
-    void displayAllMatches(
-        const std::vector<std::string>& unmatchedFreights,
-        const std::vector<std::string>& unmatchedCargos,
-        const FreightStorage& freightStorage,
-        const CargoStorage& cargoStorage
-    ) const;
-    void saveMatches(const string& filename,
-        const vector<string>& unmatchedFreights,
-        const vector<string>& unmatchedCargos) const;
-    const vector<Matcher>& getMatchedList() const;
-
-    void displayScheduleFile(const string& filename) const;
-    void generateMatches(const FreightStorage& freightStorage,
-        const CargoStorage& cargoStorage,
-        vector<string>& unmatchedFreights,
-        vector<string>& unmatchedCargos);
+    void generateMatches(const FreightStorage& fs,
+        const CargoStorage& cs);
+    void pruneExpired();
+    void saveSchedule(const std::string& filename,
+        const FreightStorage& fs,
+        const CargoStorage& cs) const;
 };
+
+#endif // MATCHEDSTORAGE_H

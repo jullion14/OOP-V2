@@ -1,31 +1,18 @@
-#pragma once
+#ifndef CARGOSTORAGE_H
+#define CARGOSTORAGE_H
 
-#include "Cargo.h"
 #include <vector>
+#include <memory>
 #include <string>
-#include <iostream>
-
-using namespace std;
-
-class FreightStorage; 
+#include "Cargo.h"
 
 class CargoStorage {
-protected:
-    vector<Cargo> cargos;
-
+    std::vector<std::shared_ptr<Cargo>> cargos_;
 public:
-    CargoStorage();
-
-    void loadCargoFromFile(const string& filename);
-    void addCargo(const Cargo& cargo);
-    bool editCargo(const string& id, const string& newLocation, time_t newTime);
-    bool deleteCargo(const string& id);
-    void saveCargoStorage(const string& filename);
-    const vector<Cargo>& getCargoStorage() const;
-    void printCargoTable(const FreightStorage& freightStorage) const;
-    string generateNextCargoId() const;
-    bool exists(const string& id) const;
-    const Cargo* getCargoById(const string& id) const;
-    const std::vector<Cargo>& getCargoList() const;
-
+    void loadCargoFromFile(const std::string& filename);
+    const std::vector<std::shared_ptr<Cargo>>& getCargoList() const {
+        return cargos_;
+    }
 };
+
+#endif // CARGOSTORAGE_H

@@ -1,29 +1,29 @@
-#pragma once
+#ifndef TRANSPORT_H
+#define TRANSPORT_H
 
 #include <string>
+#include <iostream>
 #include <ctime>
-#include <iostream> 
 
 class Transport {
 protected:
-    std::string id;
-    std::string location;
-    time_t time;
-
+    std::string id_;
+    std::string location_;
+    time_t      time_;
 public:
-    Transport();
-    Transport(const std::string& id, const std::string& location, time_t time);
+    Transport(const std::string& id,
+        const std::string& loc,
+        time_t             t)
+        : id_(id), location_(loc), time_(t)
+    {
+    }
+    virtual ~Transport() = default;
 
-    virtual ~Transport();
+    std::string getId()       const { return id_; }
+    std::string getLocation() const { return location_; }
+    time_t      getTime()     const { return time_; }
 
-    std::string getId() const;
-    std::string getLocation() const;
-    time_t getTime() const;
-
-    void setId(const std::string& newId);
-    void setLocation(const std::string& newLocation);
-    void setTime(time_t newTime);
-
-    virtual void printInfo(std::ostream& out = std::cout) const = 0;
-
+    virtual void printInfo(std::ostream& out) const = 0;
 };
+
+#endif // TRANSPORT_H

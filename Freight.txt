@@ -1,8 +1,7 @@
-F1,London,730
-F2,Paris,900
-F3,New York,1200
-F4,Tokyo,1500
-F5,Sydney,1800
-F6,Los Angeles,2100
-F7,Beijing,2359
-F8,Singapore,245
+F01,London,0730,MegaCarrier
+F02,Paris,0915,MegaCarrier
+F03,New York,1100,CargoCruiser
+F04,Sydney,1230,CargoCruiser
+F05,Tokyo,1400,MiniMover
+F06,Los Angeles,1500,MiniMover
+F07,London,0730,MiniMover

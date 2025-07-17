@@ -1,8 +1,12 @@
-C1,London,730
-C2,Paris,900
-C3,Los Angeles,2100
-C4,Tokyo,1500
-C5,New York,1800
-C6,Beijing,2100
-C7,Sydney,2350
-C8,Singapore,2350
+C01,London,0745,7
+C02,London,0730,2
+C03,Paris,0920,7
+C04,Paris,0930,3
+C05,New York,1110,6
+C06,Sydney,1220,2
+C07,Sydney,1230,8
+C08,Tokyo,1410,4
+C09,Los Angeles,1515,2
+C10,Beijing,1620,10
+C11,London,0730,6
+C12,London,0730,6

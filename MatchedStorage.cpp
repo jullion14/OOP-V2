@@ -1,184 +1,111 @@
+// MatchedStorage.cpp
+
 #include "MatchedStorage.h"
-#include "FreightStorage.h"
-#include "CargoStorage.h"
-#include "Freight.h"
-#include "Cargo.h"
-#include "Transport.h"
 #include <fstream>
-#include <iostream>
+#include <map>
+#include <vector>
+#include <unordered_set>
 #include <algorithm>
+#include <cstdlib>    // for std::abs
+#include <memory>
+#include <string>
 
-using namespace std;
-
-MatchedStorage::MatchedStorage() {}
-
-void MatchedStorage::addMatch(const Matcher& match) {
-    matchedList.push_back(match);
-}
-
-void MatchedStorage::displayAllMatches(
-    const vector<string>& unmatchedFreights,
-    const vector<string>& unmatchedCargos,
-    const FreightStorage& freightStorage,
-    const CargoStorage& cargoStorage) const
+void MatchedStorage::generateMatches(const FreightStorage& fs,
+    const CargoStorage& cs)
 {
-    cout << "\n===== Matched Freight-Cargo Pairs =====\n";
-    if (matchedList.empty()) {
-        cout << "No matched freight-cargo pairs.\n";
-    }
-    else {
-        for (const auto& match : matchedList) {
-            Transport* t1 = new Freight(match.getFreight());
-            Transport* t2 = new Cargo(match.getCargo());
+    // 1) Copy and sort freights by descending capacity
+    std::vector<std::shared_ptr<Freight>> freights = fs.getFreightList();
+    std::sort(freights.begin(), freights.end(),
+        [](const std::shared_ptr<Freight>& a,
+            const std::shared_ptr<Freight>& b) {
+                return a->maxCapacity() > b->maxCapacity();
+        });
 
-            cout << "[MATCH]\n";
-            t1->printInfo();
-            t2->printInfo();
-            cout << endl;
+    // 2) For each cargo, pour into the first fitting freight until empty
+    for (auto const& cptr : cs.getCargoList()) {
+        time_t cargoTime = cptr->getTime();
 
-            delete t1;
-            delete t2;
-        }
-    }
+        while (cptr->getGroupSize() > 0) {
+            bool didLoad = false;
 
-    // ===== Unmatched Freights =====
-    cout << "\n===== Unmatched Freights =====\n";
-    if (unmatchedFreights.empty()) {
-        cout << "None\n";
-    }
-    else {
-        for (const auto& id : unmatchedFreights) {
-            const Freight* f = freightStorage.getFreightById(id);
-            if (f) {
-                Transport* t = new Freight(*f);
-                t->printInfo();
-                delete t;
-            }
-        }
-    }
+            for (auto const& fptr : freights) {
+                // location match?
+                if (fptr->getLocation() != cptr->getLocation())
+                    continue;
+                // within ±15 minutes?
+                if (std::abs(static_cast<long>(fptr->getTime() - cargoTime)) > 15)
+                    continue;
+                // has capacity?
+                if (fptr->getRemainingCapacity() == 0)
+                    continue;
 
-    // ===== Unmatched Cargos =====
-    cout << "\n===== Unmatched Cargos =====\n";
-    if (unmatchedCargos.empty()) {
-        cout << "None\n";
-    }
-    else {
-        for (const auto& id : unmatchedCargos) {
-            const Cargo* c = cargoStorage.getCargoById(id);
-            if (c) {
-                Transport* t = new Cargo(*c);
-                t->printInfo();
-                delete t;
-            }
-        }
-    }
-}
+                // pour as much as will fit
+                size_t before = cptr->getGroupSize();
+                size_t leftover = ((*fptr) % (*cptr));
+                size_t assigned = before - leftover;
 
-void MatchedStorage::saveMatches(const string& filename,
-    const vector<string>& unmatchedFreights,
-    const vector<string>& unmatchedCargos) const {
-    ofstream ofs(filename);
-    if (!ofs) {
-        cout << "Error opening file for writing: " << filename << endl;
-        return;
-    }
+                // record the partial (or full) load
+                matchedList_.emplace_back(fptr, cptr, assigned);
 
-    ofs << "===== Matched Freight-Cargo Pairs =====\n";
-    if (matchedList.empty()) {
-        ofs << "No matched freight-cargo pairs.\n";
-    }
-    else {
-        for (const auto& match : matchedList) {
-            Transport* t1 = new Freight(match.getFreight());
-            Transport* t2 = new Cargo(match.getCargo());
-
-            ofs << "[MATCH]\n";
-            t1->printInfo(ofs);
-            t2->printInfo(ofs);
-            ofs << "\n";
-
-            delete t1;
-            delete t2;
-        }
-    }
-
-    ofs << "\n===== Unmatched Freights =====\n";
-    if (unmatchedFreights.empty()) {
-        ofs << "None\n";
-    }
-    else {
-        for (const auto& fid : unmatchedFreights) {
-            ofs << "- " << fid << "\n";
-        }
-    }
-
-    ofs << "\n===== Unmatched Cargos =====\n";
-    if (unmatchedCargos.empty()) {
-        ofs << "None\n";
-    }
-    else {
-        for (const auto& cid : unmatchedCargos) {
-            ofs << "- " << cid << "\n";
-        }
-    }
-
-    ofs.close();
-    cout << "Matches saved to " << filename << endl;
-}
-
-
-const vector<Matcher>& MatchedStorage::getMatchedList() const {
-    return matchedList;
-}
-
-void MatchedStorage::displayScheduleFile(const string& filename) const {
-    ifstream inputFile(filename);
-    if (!inputFile) {
-        cout << "Error: Could not open file '" << filename << "' for reading." << endl;
-        return;
-    }
-
-    string line;
-    while (getline(inputFile, line)) {
-        cout << line << endl;
-    }
-
-    inputFile.close();
-}
-
-void MatchedStorage::generateMatches(const FreightStorage& freightStorage,
-    const CargoStorage& cargoStorage,
-    vector<string>& unmatchedFreights,
-    vector<string>& unmatchedCargos) {
-    matchedList.clear();
-    unmatchedFreights.clear();
-    unmatchedCargos.clear();
-
-    const auto& freights = freightStorage.getFreights();
-    const auto& cargos = cargoStorage.getCargoStorage();
-    vector<bool> cargoMatched(cargos.size(), false);
-
-    for (const auto& freight : freights) {
-        bool foundMatch = false;
-        for (size_t i = 0; i < cargos.size(); ++i) {
-            if (!cargoMatched[i] &&
-                freight.getFlocation() == cargos[i].getClocation() &&
-                freight.getFtime() == cargos[i].getCtime()) {
-                Matcher match(freight, cargos[i]);
-                addMatch(match);
-                cargoMatched[i] = true;
-                foundMatch = true;
+                didLoad = true;
                 break;
             }
-        }
-        if (!foundMatch) {
-            unmatchedFreights.push_back(freight.getFid());
+
+            if (!didLoad)
+                break;  // no more can be loaded for this cargo
         }
     }
+}
 
-    for (size_t i = 0; i < cargos.size(); ++i) {
-        if (!cargoMatched[i]) {
-            unmatchedCargos.push_back(cargos[i].getCid());
+void MatchedStorage::pruneExpired() {
+    matchedList_.erase(
+        std::remove_if(matchedList_.begin(), matchedList_.end(),
+            [](const Matcher& m) { return !m.isValid(); }),
+        matchedList_.end());
+}
+
+void MatchedStorage::saveSchedule(const std::string& filename,
+    const FreightStorage& fs,
+    const CargoStorage& cs) const
+{
+    std::ofstream out(filename);
+    out << "Matched:\n\n";
+
+    // Group all matchers by their freight
+    std::map<std::shared_ptr<Freight>, std::vector<Matcher>> groups;
+    for (auto const& m : matchedList_) {
+        if (!m.isValid()) continue;
+        groups[m.getFreight()].push_back(m);
+    }
+
+    // Print each freight and its assigned cargos
+    for (auto it = groups.begin(); it != groups.end(); ++it) {
+        auto fptr = it->first;
+        const auto& matches = it->second;
+
+        out << "Freight: " << fptr->getId()
+            << " - " << fptr->getLocation()
+            << ", " << fptr->getTime()
+            << "\n";
+        out << std::string(50, '-') << "\n";
+
+        for (auto const& m : matches) {
+            out << m.getCargo()->getId()
+                << " - Size: " << m.getAssignedSize()
+                << "\n";
+            out << std::string(50, '-') << "\n";
+        }
+        out << "\n";
+    }
+
+    // Print any cargo with remaining groupSize > 0
+    out << "Unmatched:\n";
+    for (auto const& cptr : cs.getCargoList()) {
+        int leftover = cptr->getGroupSize();
+        if (leftover > 0) {
+            out << cptr->getId()
+                << " - Size: " << leftover
+                << "\n";
         }
     }
 }
