@@ -1,111 +1,148 @@
-// MatchedStorage.cpp
-
 #include "MatchedStorage.h"
+
 #include <fstream>
 #include <map>
 #include <vector>
-#include <unordered_set>
+#include <unordered_map>
 #include <algorithm>
 #include <cstdlib>    // for std::abs
-#include <memory>
-#include <string>
+#include <iostream>
 
 void MatchedStorage::generateMatches(const FreightStorage& fs,
     const CargoStorage& cs)
 {
-    // 1) Copy and sort freights by descending capacity
-    std::vector<std::shared_ptr<Freight>> freights = fs.getFreightList();
+    matchedList_.clear();
+
+    // 1) copy & sort freights by descending capacity
+    auto freights = fs.getFreightList();
     std::sort(freights.begin(), freights.end(),
-        [](const std::shared_ptr<Freight>& a,
-            const std::shared_ptr<Freight>& b) {
-                return a->maxCapacity() > b->maxCapacity();
+        [](auto const& a, auto const& b) {
+            return a->maxCapacity() > b->maxCapacity();
         });
 
-    // 2) For each cargo, pour into the first fitting freight until empty
-    for (auto const& cptr : cs.getCargoList()) {
-        time_t cargoTime = cptr->getTime();
+    // 2) track remaining capacity
+    std::unordered_map<std::shared_ptr<Freight>, size_t> capRem;
+    for (auto const& f : freights)
+        capRem[f] = f->maxCapacity();
 
-        while (cptr->getGroupSize() > 0) {
-            bool didLoad = false;
+    // 3) track remaining cargo group sizes
+    std::unordered_map<std::shared_ptr<Cargo>, int> cargoRem;
+    for (auto const& c : cs.getCargoList())
+        cargoRem[c] = c->getGroupSize();
 
-            for (auto const& fptr : freights) {
-                // location match?
-                if (fptr->getLocation() != cptr->getLocation())
-                    continue;
-                // within ±15 minutes?
-                if (std::abs(static_cast<long>(fptr->getTime() - cargoTime)) > 15)
-                    continue;
-                // has capacity?
-                if (fptr->getRemainingCapacity() == 0)
-                    continue;
+    // 4) match
+    for (auto const& c : cs.getCargoList()) {
+        time_t ct = c->getTime();
+        while (cargoRem[c] > 0) {
+            bool loaded = false;
+            for (auto const& f : freights) {
+                if (f->getLocation() != c->getLocation())          continue;
+                if (std::abs(long(f->getTime() - ct)) > 15)         continue;
+                if (capRem[f] == 0)                                continue;
 
-                // pour as much as will fit
-                size_t before = cptr->getGroupSize();
-                size_t leftover = ((*fptr) % (*cptr));
-                size_t assigned = before - leftover;
+                size_t assign = std::min(capRem[f],
+                    size_t(cargoRem[c]));
+                capRem[f] -= assign;
+                cargoRem[c] -= int(assign);
 
-                // record the partial (or full) load
-                matchedList_.emplace_back(fptr, cptr, assigned);
-
-                didLoad = true;
+                matchedList_.emplace_back(f, c, assign);
+                loaded = true;
                 break;
             }
-
-            if (!didLoad)
-                break;  // no more can be loaded for this cargo
+            if (!loaded) break;
         }
     }
 }
 
 void MatchedStorage::pruneExpired() {
     matchedList_.erase(
-        std::remove_if(matchedList_.begin(), matchedList_.end(),
-            [](const Matcher& m) { return !m.isValid(); }),
+        std::remove_if(matchedList_.begin(),
+            matchedList_.end(),
+            [](Matcher const& m) { return !m.isValid(); }),
         matchedList_.end());
 }
 
 void MatchedStorage::saveSchedule(const std::string& filename,
-    const FreightStorage& fs,
+    const FreightStorage& /*fs*/,
     const CargoStorage& cs) const
 {
     std::ofstream out(filename);
     out << "Matched:\n\n";
 
-    // Group all matchers by their freight
+    // group by freight
     std::map<std::shared_ptr<Freight>, std::vector<Matcher>> groups;
     for (auto const& m : matchedList_) {
         if (!m.isValid()) continue;
         groups[m.getFreight()].push_back(m);
     }
 
-    // Print each freight and its assigned cargos
-    for (auto it = groups.begin(); it != groups.end(); ++it) {
-        auto fptr = it->first;
-        const auto& matches = it->second;
-
-        out << "Freight: " << fptr->getId()
-            << " - " << fptr->getLocation()
-            << ", " << fptr->getTime()
-            << "\n";
-        out << std::string(50, '-') << "\n";
-
-        for (auto const& m : matches) {
+    // print matched
+    for (auto const& kv : groups) {
+        auto f = kv.first;
+        out << "Freight: " << f->getId()
+            << " - " << f->getLocation()
+            << ", " << f->getTime() << "\n"
+            << std::string(50, '-') << "\n";
+        for (auto const& m : kv.second) {
             out << m.getCargo()->getId()
-                << " - Size: " << m.getAssignedSize()
-                << "\n";
-            out << std::string(50, '-') << "\n";
+                << " - Size: " << m.getAssignedSize() << "\n"
+                << std::string(50, '-') << "\n";
         }
         out << "\n";
     }
 
-    // Print any cargo with remaining groupSize > 0
+    // compute unmatched
+    std::unordered_map<std::shared_ptr<Cargo>, int> assigned;
+    for (auto const& m : matchedList_) {
+        if (!m.isValid()) continue;
+        assigned[m.getCargo()] += int(m.getAssignedSize());
+    }
+
     out << "Unmatched:\n";
-    for (auto const& cptr : cs.getCargoList()) {
-        int leftover = cptr->getGroupSize();
-        if (leftover > 0) {
-            out << cptr->getId()
-                << " - Size: " << leftover
-                << "\n";
+    for (auto const& c : cs.getCargoList()) {
+        int rem = c->getGroupSize() - assigned[c];
+        if (rem > 0)
+            out << c->getId() << " - Size: " << rem << "\n";
+    }
+}
+
+void MatchedStorage::displaySchedule(const FreightStorage& fs,
+    const CargoStorage& cs) const
+{
+    // exactly the same logic as saveSchedule, but to cout
+    std::cout << "Matched:\n\n";
+
+    std::map<std::shared_ptr<Freight>, std::vector<Matcher>> groups;
+    for (auto const& m : matchedList_) {
+        if (!m.isValid()) continue;
+        groups[m.getFreight()].push_back(m);
+    }
+
+    for (auto const& kv : groups) {
+        auto f = kv.first;
+        std::cout << "Freight: " << f->getId()
+            << " - " << f->getLocation()
+            << ", " << f->getTime() << "\n"
+            << std::string(50, '-') << "\n";
+        for (auto const& m : kv.second) {
+            std::cout << m.getCargo()->getId()
+                << " - Size: " << m.getAssignedSize() << "\n"
+                << std::string(50, '-') << "\n";
         }
+        std::cout << "\n";
+    }
+
+    std::unordered_map<std::shared_ptr<Cargo>, int> assigned;
+    for (auto const& m : matchedList_) {
+        if (!m.isValid()) continue;
+        assigned[m.getCargo()] += int(m.getAssignedSize());
+    }
+
+    std::cout << "Unmatched:\n";
+    for (auto const& c : cs.getCargoList()) {
+        int rem = c->getGroupSize() - assigned[c];
+        if (rem > 0)
+            std::cout << c->getId()
+            << " - Size: " << rem << "\n";
     }
 }

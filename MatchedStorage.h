@@ -16,6 +16,10 @@ public:
     void saveSchedule(const std::string& filename,
         const FreightStorage& fs,
         const CargoStorage& cs) const;
+
+    // NEW: display the in-memory schedule (Matched + Unmatched) to cout
+    void displaySchedule(const FreightStorage& fs,
+        const CargoStorage& cs) const;
 };
 
 #endif // MATCHEDSTORAGE_H

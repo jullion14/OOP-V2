@@ -4,37 +4,33 @@
 #include <vector>
 #include <memory>
 #include <string>
-#include <algorithm>
+#include <ostream>
 #include "Freight.h"
+using namespace std;
 
 class FreightStorage {
-    std::vector<std::shared_ptr<Freight>> freights_;
+    vector<shared_ptr<Freight>> freights_;
 public:
-    // Load from file
-    void loadFreightFromFile(const std::string& filename);
+    // File I/O
+    void loadFreightFromFile(const string& filename);
+    void saveFreightToFile(const string& filename) const;
 
-    // In-memory insert
-    void addFreight(const std::shared_ptr<Freight>& freight) {
-        freights_.push_back(freight);
-    }
-
-    // Remove freight by ID
-    bool removeFreightById(const std::string& id) {
-        size_t before = freights_.size();
-        freights_.erase(
-            std::remove_if(freights_.begin(), freights_.end(),
-                [&](const std::shared_ptr<Freight>& f) {
-                    return f->getId() == id;
-                }),
-            freights_.end()
-        );
-        return freights_.size() != before;
-    }
-
-    // Accessor
-    const std::vector<std::shared_ptr<Freight>>& getFreightList() const {
+    // Access in-memory list
+    const vector<shared_ptr<Freight>>& getFreightList() const {
         return freights_;
     }
+
+    // ID generation & CRUD
+    string generateNextFreightId() const;
+    void   addFreight(const shared_ptr<Freight>& freight);
+    bool   editFreight(const string& id,
+        const string& newLoc,
+        time_t         newTime,
+        int            newType);
+    bool   removeFreightById(const string& id);
+
+    // Display helper
+    void displayFreight(ostream& out = cout) const;
 };
 
 #endif // FREIGHTSTORAGE_H

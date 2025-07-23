@@ -1,9 +1,1 @@
 F01,London,0730,MegaCarrier
-F02,Paris,0915,MegaCarrier
-F03,New York,1100,CargoCruiser
-F04,Sydney,1230,CargoCruiser
-F05,Tokyo,1400,MiniMover
-F06,Los Angeles,1500,MiniMover
-F07,London,0730,MiniMover
-F08,India,0900,MiniMover
-F09,India,0900,CargoCruiser

@@ -1,4 +1,3 @@
-// Transport.h
 #ifndef TRANSPORT_H
 #define TRANSPORT_H
 
@@ -6,25 +5,31 @@
 #include <iostream>
 #include <ctime>
 
+using namespace std;
+
 class Transport {
 protected:
-    std::string id_;
-    std::string location_;
+    string id_;
+    string location_;
     time_t      time_;
 public:
-    Transport(const std::string& id, const std::string& loc, time_t t)
+    Transport(const string& id,
+        const string& loc,
+        time_t             t)
         : id_(id), location_(loc), time_(t) {
     }
+
     virtual ~Transport() = default;
 
-    std::string getId() const { return id_; }
-    std::string getLocation() const { return location_; }
-    time_t      getTime() const { return time_; }
+    string getId()       const { return id_; }
+    string getLocation() const { return location_; }
+    time_t      getTime()     const { return time_; }
 
-    void setLocation(const std::string& loc) { location_ = loc; }
+    // from UML
+    void setLocation(const string& loc) { location_ = loc; }
     void setTime(time_t t) { time_ = t; }
 
-    virtual void printInfo(std::ostream& out) const = 0;
+    virtual void printInfo(ostream& out) const = 0;
 };
 
 #endif // TRANSPORT_H
