@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <string>
+#include <sstream>          // <-- added for ostringstream
 
 #include "CargoStorage.h"
 #include "FreightStorage.h"
@@ -18,12 +19,11 @@ void showMainMenu();
 int  getUserChoice(int min = 1, int max = 11);
 
 string getFreightType(const shared_ptr<Freight>& f) {
-    if (dynamic_cast<MiniMover*>(f.get()))    return "MiniMover";
+    if (dynamic_cast<MiniMover*>(f.get()))       return "MiniMover";
     else if (dynamic_cast<CargoCruiser*>(f.get())) return "CargoCruiser";
     else if (dynamic_cast<MegaCarrier*>(f.get()))  return "MegaCarrier";
-    else                                           return "Unknown";
+    else                                            return "Unknown";
 }
-
 
 // helper to print cargo + freight side-by-side
 void printSideBySide(const CargoStorage& cs,
@@ -43,27 +43,46 @@ void printSideBySide(const CargoStorage& cs,
         << setw(15) << "Refuel Stop"
         << setw(8) << "Time"
         << setw(14) << "Type"
-        << "\n" << string(10 + 15 + 8 + 8 + 3 + 12 + 15 + 8 + 14, '-') << "\n";
+        << "\n"
+        << string(10 + 15 + 8 + 8 + 3 + 12 + 15 + 8 + 14, '-')
+        << "\n";
 
     for (size_t i = 0; i < rows; ++i) {
+        // --- Cargo side ---
         if (i < cl.size()) {
             auto const& c = cl[i];
+
+            // format cargo time to 4 digits with leading zeros
+            ostringstream cOss;
+            cOss << setw(4) << setfill('0') << c->getTime();
+            string cTime = cOss.str();
+
             cout << setw(10) << c->getId()
                 << setw(15) << c->getLocation()
-                << setw(8) << c->getTime()
+                << setw(8) << cTime
                 << setw(8) << c->getGroupSize();
         }
         else {
             cout << string(10 + 15 + 8 + 8, ' ');
         }
+
         cout << " | ";
+
+        // --- Freight side ---
         if (i < fl.size()) {
             auto const& f = fl[i];
+
+            // format freight time to 4 digits with leading zeros
+            ostringstream fOss;
+            fOss << setw(4) << setfill('0') << f->getTime();
+            string fTime = fOss.str();
+
             cout << setw(12) << f->getId()
                 << setw(15) << f->getLocation()
-                << setw(8) << f->getTime()
-		        << setw(14) << getFreightType(f);
+                << setw(8) << fTime
+                << setw(14) << getFreightType(f);
         }
+
         cout << "\n";
     }
 }
@@ -201,7 +220,7 @@ int main() {
             shared_ptr<Freight> f;
             if (ty == 1)      f = make_shared<MiniMover>(id, loc, t);
             else if (ty == 2) f = make_shared<CargoCruiser>(id, loc, t);
-            else           f = make_shared<MegaCarrier>(id, loc, t);
+            else              f = make_shared<MegaCarrier>(id, loc, t);
 
             fs.addFreight(f);
             cout << "Freight added in memory.\n";
@@ -227,7 +246,7 @@ int main() {
 
             cout << "Change type? 0=keep,1=MiniMover,2=Cruiser,3=Mega: ";
             int ty;
-            while (!(cin >> ty) || ty < 0 || ty>3) {
+            while (!(cin >> ty) || ty < 0 || ty > 3) {
                 cin.clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cout << "Enter 0–3: ";
@@ -250,6 +269,7 @@ int main() {
                 cout << "Freight ID not found.\n";
             break;
         }
+
         case 9:
             ms.generateMatches(fs, cs);
             ms.pruneExpired();
@@ -263,7 +283,6 @@ int main() {
 
         case 11:
             cs.saveCargoToFile("Cargo.txt");
-
             exitFlag = true;
             break;
         }
@@ -290,7 +309,7 @@ void showMainMenu() {
 
 int getUserChoice(int min, int max) {
     int c;
-    while (!(cin >> c) || c<min || c>max) {
+    while (!(cin >> c) || c < min || c > max) {
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cout << "Enter valid option (" << min << "-" << max << "): ";
