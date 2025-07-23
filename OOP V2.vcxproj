@@ -134,13 +134,19 @@
   <ItemGroup>
     <ClInclude Include="Cargo.h" />
     <ClInclude Include="CargoCruiser.h" />
+    <ClInclude Include="CargoCruiserFactory.h" />
     <ClInclude Include="CargoStorage.h" />
     <ClInclude Include="Freight.h" />
+    <ClInclude Include="FreightFactory.h" />
     <ClInclude Include="FreightStorage.h" />
     <ClInclude Include="MatchedStorage.h" />
     <ClInclude Include="Matcher.h" />
+    <ClInclude Include="MatchStrategy.h" />
     <ClInclude Include="MegaCarrier.h" />
+    <ClInclude Include="MegaCarrierFactory.h" />
     <ClInclude Include="MiniMover.h" />
+    <ClInclude Include="MiniMoverFactory.h" />
+    <ClInclude Include="TimeWindowStrategy.h" />
     <ClInclude Include="Transport.h" />
   </ItemGroup>
   <ItemGroup>

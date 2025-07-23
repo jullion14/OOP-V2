@@ -3,14 +3,20 @@
 #include <algorithm>
 #include <iomanip>
 #include <string>
-#include <sstream>          // <-- added for ostringstream
+#include <sstream>          // for ostringstream
+#include <memory>           // for unique_ptr
 
 #include "CargoStorage.h"
 #include "FreightStorage.h"
 #include "MatchedStorage.h"
+#include "FreightFactory.h"
+#include "MiniMoverFactory.h"
+#include "CargoCruiserFactory.h"
+#include "MegaCarrierFactory.h"
 #include "MiniMover.h"
 #include "CargoCruiser.h"
 #include "MegaCarrier.h"
+#include "TimeWindowStrategy.h"      // <-- added
 
 using namespace std;
 
@@ -19,10 +25,10 @@ void showMainMenu();
 int  getUserChoice(int min = 1, int max = 11);
 
 string getFreightType(const shared_ptr<Freight>& f) {
-    if (dynamic_cast<MiniMover*>(f.get()))       return "MiniMover";
+    if (dynamic_cast<MiniMover*>(f.get()))        return "MiniMover";
     else if (dynamic_cast<CargoCruiser*>(f.get())) return "CargoCruiser";
     else if (dynamic_cast<MegaCarrier*>(f.get()))  return "MegaCarrier";
-    else                                            return "Unknown";
+    else                                           return "Unknown";
 }
 
 // helper to print cargo + freight side-by-side
@@ -51,15 +57,11 @@ void printSideBySide(const CargoStorage& cs,
         // --- Cargo side ---
         if (i < cl.size()) {
             auto const& c = cl[i];
-
-            // format cargo time to 4 digits with leading zeros
             ostringstream cOss;
             cOss << setw(4) << setfill('0') << c->getTime();
-            string cTime = cOss.str();
-
             cout << setw(10) << c->getId()
                 << setw(15) << c->getLocation()
-                << setw(8) << cTime
+                << setw(8) << cOss.str()
                 << setw(8) << c->getGroupSize();
         }
         else {
@@ -71,15 +73,11 @@ void printSideBySide(const CargoStorage& cs,
         // --- Freight side ---
         if (i < fl.size()) {
             auto const& f = fl[i];
-
-            // format freight time to 4 digits with leading zeros
             ostringstream fOss;
             fOss << setw(4) << setfill('0') << f->getTime();
-            string fTime = fOss.str();
-
             cout << setw(12) << f->getId()
                 << setw(15) << f->getLocation()
-                << setw(8) << fTime
+                << setw(8) << fOss.str()
                 << setw(14) << getFreightType(f);
         }
 
@@ -107,14 +105,12 @@ int main() {
             break;
 
         case 2:
-            // display last in-memory schedule
             ms.displaySchedule(fs, cs);
             break;
 
         case 3: {  // Add Cargo
             auto id = cs.generateNextCargoId();
-            cout << "New Cargo ID: " << id << "\n"
-                << "Location: ";
+            cout << "New Cargo ID: " << id << "\nLocation: ";
             string loc; getline(cin, loc);
 
             time_t t = 0;
@@ -190,7 +186,7 @@ int main() {
             break;
         }
 
-        case 6: {  // Add Freight
+        case 6: {  // Add Freight (using Factory Method)
             string id = fs.generateNextFreightId();
             cout << "New Freight ID: " << id << "\nLocation: ";
             string loc; getline(cin, loc);
@@ -217,10 +213,14 @@ int main() {
                 cout << "Invalid. Try again.\n";
             }
 
-            shared_ptr<Freight> f;
-            if (ty == 1)      f = make_shared<MiniMover>(id, loc, t);
-            else if (ty == 2) f = make_shared<CargoCruiser>(id, loc, t);
-            else              f = make_shared<MegaCarrier>(id, loc, t);
+            // Factory Method
+            unique_ptr<FreightFactory> factory;
+            switch (ty) {
+            case 1: factory = make_unique<MiniMoverFactory>();    break;
+            case 2: factory = make_unique<CargoCruiserFactory>(); break;
+            case 3: factory = make_unique<MegaCarrierFactory>();  break;
+            }
+            auto f = factory->create(id, loc, t);
 
             fs.addFreight(f);
             cout << "Freight added in memory.\n";
@@ -249,28 +249,45 @@ int main() {
             while (!(cin >> ty) || ty < 0 || ty > 3) {
                 cin.clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Enter 0–3: ";
+                cout << "Enter 0-3: ";
             }
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-            if (fs.editFreight(id, loc, t, ty))
-                cout << "Freight updated.\n";
-            else
-                cout << "Freight ID not found.\n";
+            if (ty == 0) {
+                if (fs.editFreight(id, loc, t, 0))
+                    cout << "Freight updated.\n";
+                else
+                    cout << "Freight ID not found.\n";
+            }
+            else {
+                unique_ptr<FreightFactory> factory;
+                switch (ty) {
+                case 1: factory = make_unique<MiniMoverFactory>();    break;
+                case 2: factory = make_unique<CargoCruiserFactory>(); break;
+                case 3: factory = make_unique<MegaCarrierFactory>();  break;
+                }
+                auto newF = factory->create(id, loc, t);
+                fs.removeFreightById(id);
+                fs.addFreight(newF);
+                cout << "Freight type & details updated.\n";
+            }
             break;
         }
 
-        case 8: {  // Delete Freight
+        case 8:
             cout << "Enter Freight ID to delete: ";
-            string id; getline(cin, id);
-            if (fs.removeFreightById(id))
-                cout << "Freight deleted.\n";
-            else
-                cout << "Freight ID not found.\n";
+            {
+                string id; getline(cin, id);
+                if (fs.removeFreightById(id))
+                    cout << "Freight deleted.\n";
+                else
+                    cout << "Freight ID not found.\n";
+            }
             break;
-        }
 
         case 9:
+            // Strategy Method
+            ms.setStrategy(std::make_unique<TimeWindowStrategy>(15));
             ms.generateMatches(fs, cs);
             ms.pruneExpired();
             ms.displaySchedule(fs, cs);
