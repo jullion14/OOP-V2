@@ -282,13 +282,15 @@ int main() {
             int ty = 0;
             while (true) {
                 cout << "Type (1=MiniMover,2=Cruiser,3=Mega): ";
-                if (cin >> ty && ty >= 1 && ty <= 3) {
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                string tyInput;
+                getline(cin, tyInput);
+                tyInput.erase(0, tyInput.find_first_not_of(" \t"));
+                tyInput.erase(tyInput.find_last_not_of(" \t") + 1);
+                if (!tyInput.empty() && tyInput.length() == 1 && (tyInput == "1" || tyInput == "2" || tyInput == "3")) {
+                    ty = stoi(tyInput);
                     break;
                 }
-                cin.clear();
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Invalid. Try again.\n";
+                cout << "Invalid. Please enter 1, 2, or 3.\n";
             }
 
             string key = (ty == 1 ? "MiniMover"
@@ -341,30 +343,31 @@ int main() {
                 cout << "Invalid. Try again.\n";
             }
 
-            cout << "Change type? 0=keep,1=MiniMover,2=Cruiser,3=Mega: ";
-            int ty;
-            while (!(cin >> ty) || ty < 0 || ty > 3) {
-                cin.clear();
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Enter 0–3: ";
-            }
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            // Accept only 1, 2, or 3 for type (no "keep" option)
+            int ty = 0;
+            while (true) {
+                cout << "Change type? 1=MiniMover,2=Cruiser,3=Mega: ";
+                string typeInput;
+                getline(cin, typeInput);
+                // remove spaces
+                typeInput.erase(0, typeInput.find_first_not_of(" \t"));
+                typeInput.erase(typeInput.find_last_not_of(" \t") + 1);
 
-            if (ty == 0) {
-                fs.editFreight(id, loc, t, 0)
-                    ? cout << "Freight updated.\n"
-                    : cout << "Freight ID not found.\n";
+                if (typeInput == "1" || typeInput == "2" || typeInput == "3") {
+                    ty = stoi(typeInput);
+                    break;
+                }
+                cout << "Invalid. Please enter 1, 2, or 3.\n";
             }
-            else {
-                fs.removeFreightById(id);
-                string key2 = (ty == 1 ? "MiniMover"
-                    : ty == 2 ? "CargoCruiser"
-                    : "MegaCarrier");
-                FreightFactory* fac2 = fs.getFactory(key2);
-                auto newF = fac2->create(id, loc, t);
-                fs.addFreight(newF);
-                cout << "Freight type & details updated.\n";
-            }
+
+            fs.removeFreightById(id);
+            string key2 = (ty == 1 ? "MiniMover"
+                : ty == 2 ? "CargoCruiser"
+                : "MegaCarrier");
+            FreightFactory* fac2 = fs.getFactory(key2);
+            auto newF = fac2->create(id, loc, t);
+            fs.addFreight(newF);
+            cout << "Freight type & details updated.\n";
             break;
         }
 
