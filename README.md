@@ -1,15 +1,8 @@
-```
 # 🚢 OOP-V2 – Cargo & Freight Matching Simulator
-
+```
 > A console-based C++ project that showcases clean object-oriented programming by solving a practical logistics problem: **matching cargo items to suitable freight options and generating a shipping schedule**.
 
-![C++](https://img.shields.io/badge/language-C++17-blue.svg)
-![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)
-![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey)
-
----
-
-## ✨ Key Features
+✨ Key Features
 
 - 🧱 **Encapsulated Domain Classes**  
   Modular design with clear abstractions for `Cargo`, `Freight`, and `Transport`.
@@ -26,11 +19,8 @@
 - 🧪 **Clean Layered Architecture**  
   Easy to extend, test, and adapt to GUI/API use cases thanks to separation of model, service, and UI logic.
 
----
-
-## 📂 File Structure
-
 ```
+📂 File Structure
 .
 ├── Cargo.h / .cpp         # Cargo item class and utilities
 ├── Freight.h / .cpp       # Freight offer class and utilities
@@ -44,7 +34,6 @@
 ├── schedule.txt           # Output shipping schedule
 └── main.cpp               # Program entry point
 
-````
 ## 🚀 Getting Started
 
 ### ✅ Prerequisites
@@ -59,7 +48,7 @@ Using a terminal:
 ```bash
 g++ -std=c++17 -Wall -Wextra -pedantic -o oop_v2 src/*.cpp
 ./oop_v2
-````
+```
 
 > Ensure your source files are located under a `src/` directory or adjust the path accordingly.
 ```
