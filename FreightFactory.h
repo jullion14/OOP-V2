@@ -1,3 +1,6 @@
+// done by: Lim Jia Herng Julian
+
+
 // FreightFactory.h
 #ifndef FREIGHTFACTORY_H
 #define FREIGHTFACTORY_H
