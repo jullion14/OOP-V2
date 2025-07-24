@@ -10,6 +10,7 @@ struct CargoCruiserFactory : FreightFactory {
             const std::string& loc,
             time_t t) const override
     {
+        std::cout << "[Factory] Creating CargoCruiser(" << id << ")\n";
         return std::make_shared<CargoCruiser>(id, loc, t);
     }
 };

@@ -1,3 +1,5 @@
+// MatchedStorage.cpp
+
 #include "MatchedStorage.h"
 
 #include <fstream>
@@ -117,7 +119,8 @@ void MatchedStorage::saveSchedule(const std::string& filename,
     std::unordered_map<std::shared_ptr<Cargo>, int> assigned;
     for (auto const& m : matchedList_) {
         if (!m.isValid()) continue;
-        assigned[m.getCargo()] += m.getAssignedSize();
+        // <— explicit cast removes the warning here
+        assigned[m.getCargo()] += static_cast<int>(m.getAssignedSize());
     }
 
     out << "Unmatched:\n";
@@ -165,7 +168,8 @@ void MatchedStorage::displaySchedule(const FreightStorage& fs,
     std::unordered_map<std::shared_ptr<Cargo>, int> assigned;
     for (auto const& m : matchedList_) {
         if (!m.isValid()) continue;
-        assigned[m.getCargo()] += m.getAssignedSize();
+        // <— and here as well
+        assigned[m.getCargo()] += static_cast<int>(m.getAssignedSize());
     }
 
     std::cout << "Unmatched:\n";

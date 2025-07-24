@@ -1,3 +1,4 @@
+// main.cpp
 #include <iostream>
 #include <limits>
 #include <algorithm>
@@ -89,7 +90,12 @@ int main() {
     FreightStorage fs;
     MatchedStorage ms;
 
-    // load once
+    // ??? 1) Register all Freight factories ???????????????????????
+    fs.registerFactory("MiniMover", make_unique<MiniMoverFactory>());
+    fs.registerFactory("CargoCruiser", make_unique<CargoCruiserFactory>());
+    fs.registerFactory("MegaCarrier", make_unique<MegaCarrierFactory>());
+
+    // ??? 2) Load from files ???????????????????????????????????????
     cs.loadCargoFromFile("Cargo.txt");
     fs.loadFreightFromFile("Freight.txt");
 
@@ -130,7 +136,8 @@ int main() {
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     break;
                 }
-                cin.clear(); cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cout << "Invalid. Try again.\n";
             }
 
@@ -164,7 +171,8 @@ int main() {
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     break;
                 }
-                cin.clear(); cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cout << "Invalid. Try again.\n";
             }
 
@@ -208,20 +216,24 @@ int main() {
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     break;
                 }
-                cin.clear(); cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cout << "Invalid. Try again.\n";
             }
 
-            unique_ptr<FreightFactory> factory;
-            switch (ty) {
-            case 1: factory = make_unique<MiniMoverFactory>();    break;
-            case 2: factory = make_unique<CargoCruiserFactory>(); break;
-            case 3: factory = make_unique<MegaCarrierFactory>();  break;
+            // ?? Use registered factory ?????????????????????
+            string key = (ty == 1 ? "MiniMover"
+                : ty == 2 ? "CargoCruiser"
+                : "MegaCarrier");
+            FreightFactory* fac = fs.getFactory(key);
+            if (!fac) {
+                cout << "Error: no factory for " << key << "\n";
             }
-            auto f = factory->create(id, loc, t);
-
-            fs.addFreight(f);
-            cout << "Freight added in memory.\n";
+            else {
+                auto f = fac->create(id, loc, t);
+                fs.addFreight(f);
+                cout << "Freight added in memory.\n";
+            }
             break;
         }
 
@@ -229,17 +241,12 @@ int main() {
             cout << "Enter Freight ID to edit: ";
             string id; getline(cin, id);
 
-            // validate exists
-            {
-                const auto& fl = fs.getFreightList();
-                auto it = find_if(fl.begin(), fl.end(),
-                    [&](const shared_ptr<Freight>& f) {
-                        return f->getId() == id;
-                    });
-                if (it == fl.end()) {
-                    cout << "Freight ID not found.\n";
-                    break;
-                }
+            const auto& fl = fs.getFreightList();
+            auto it = find_if(fl.begin(), fl.end(),
+                [&](auto const& f) { return f->getId() == id; });
+            if (it == fl.end()) {
+                cout << "Freight ID not found.\n";
+                break;
             }
 
             cout << "New Location: ";
@@ -261,7 +268,7 @@ int main() {
             while (!(cin >> ty) || ty < 0 || ty>3) {
                 cin.clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Enter 0-3: ";
+                cout << "Enter 0–3: ";
             }
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
@@ -271,15 +278,16 @@ int main() {
                     : cout << "Freight ID not found.\n";
             }
             else {
-                unique_ptr<FreightFactory> factory;
-                switch (ty) {
-                case 1: factory = make_unique<MiniMoverFactory>();    break;
-                case 2: factory = make_unique<CargoCruiserFactory>(); break;
-                case 3: factory = make_unique<MegaCarrierFactory>();  break;
-                }
-                auto newF = factory->create(id, loc, t);
+                // remove old, then add new via factory
                 fs.removeFreightById(id);
+
+                string key = (ty == 1 ? "MiniMover"
+                    : ty == 2 ? "CargoCruiser"
+                    : "MegaCarrier");
+                FreightFactory* fac2 = fs.getFactory(key);
+                auto newF = fac2->create(id, loc, t);
                 fs.addFreight(newF);
+
                 cout << "Freight type & details updated.\n";
             }
             break;
@@ -289,17 +297,12 @@ int main() {
             cout << "Enter Freight ID to delete: ";
             string id; getline(cin, id);
 
-            // validate exists
-            {
-                const auto& fl = fs.getFreightList();
-                auto it = find_if(fl.begin(), fl.end(),
-                    [&](const shared_ptr<Freight>& f) {
-                        return f->getId() == id;
-                    });
-                if (it == fl.end()) {
-                    cout << "Freight ID not found.\n";
-                    break;
-                }
+            const auto& fl = fs.getFreightList();
+            auto it2 = find_if(fl.begin(), fl.end(),
+                [&](auto const& f) { return f->getId() == id; });
+            if (it2 == fl.end()) {
+                cout << "Freight ID not found.\n";
+                break;
             }
 
             fs.removeFreightById(id);

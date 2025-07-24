@@ -134,10 +134,14 @@
   <ItemGroup>
     <ClInclude Include="Cargo.h" />
     <ClInclude Include="CargoCruiser.h" />
-    <ClInclude Include="CargoCruiserFactory.h" />
+    <ClInclude Include="CargoCruiserFactory.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="CargoStorage.h" />
     <ClInclude Include="Freight.h" />
-    <ClInclude Include="FreightFactory.h" />
+    <ClInclude Include="FreightFactory.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="FreightStorage.h" />
     <ClInclude Include="MatchedStorage.h" />
     <ClInclude Include="Matcher.h" />
@@ -145,7 +149,9 @@
     <ClInclude Include="MegaCarrier.h" />
     <ClInclude Include="MegaCarrierFactory.h" />
     <ClInclude Include="MiniMover.h" />
-    <ClInclude Include="MiniMoverFactory.h" />
+    <ClInclude Include="MiniMoverFactory.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="TimeWindowStrategy.h" />
     <ClInclude Include="Transport.h" />
   </ItemGroup>

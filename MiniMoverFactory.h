@@ -9,6 +9,7 @@ struct MiniMoverFactory : FreightFactory {
             const std::string& loc,
             time_t t) const override
     {
+        std::cout << "[Factory] Creating MiniMover(" << id << ")\n";
         return std::make_shared<MiniMover>(id, loc, t);
     }
 };

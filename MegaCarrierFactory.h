@@ -9,6 +9,8 @@ struct MegaCarrierFactory : FreightFactory {
             const std::string& loc,
             time_t t) const override
     {
+        std::cout << "[Factory] Creating MegaCarrier(" << id << ")\n";
         return std::make_shared<MegaCarrier>(id, loc, t);
     }
 };
+

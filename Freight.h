@@ -1,51 +1,47 @@
+// Freight.h
 #ifndef FREIGHT_H
 #define FREIGHT_H
 
-#include "Transport.h"
-#include "Cargo.h"
-#include <algorithm>
-#include <cassert>
-#include <cstddef>
-#include <iostream>
-using namespace std;
+#include <string>
+#include <ostream>
+#include <ctime>
 
-class Freight : public Transport {
-protected:
-    size_t remainingCapacity_;
+class Freight {
 public:
-    Freight(const string& id,
-        const string& loc,
-        time_t         t,
-        size_t         cap)
-        : Transport(id, loc, t)
-        , remainingCapacity_(cap)
-    {
+    Freight(const std::string& id,
+        const std::string& loc,
+        time_t t,
+        size_t cap)
+        : id_(id), location_(loc), timestamp_(t), capacity_(cap) {
     }
-
     virtual ~Freight() = default;
 
-    size_t getRemainingCapacity() const { return remainingCapacity_; }
-    void   setRemainingCapacity(size_t c) { remainingCapacity_ = c; }
+    const std::string& getId()       const { return id_; }
+    const std::string& getLocation() const { return location_; }
+    time_t              getTime()     const { return timestamp_; }
+    size_t              getCap()      const { return capacity_; }
 
-    virtual size_t maxCapacity() const = 0;
+    void setLocation(const std::string& loc) { location_ = loc; }
+    void setTime(time_t t) { timestamp_ = t; }
 
-    size_t operator%(Cargo& c) {
-        assert(c.getLocation() == getLocation());
-        size_t assign = min(remainingCapacity_,
-            static_cast<size_t>(c.getGroupSize()));
-        remainingCapacity_ -= assign;
-        int leftover = c.getGroupSize() - static_cast<int>(assign);
-        c.setGroupSize(leftover);
-        return static_cast<size_t>(leftover);
-    }
+    // new pure?virtual to identify subclass
+    virtual std::string typeName() const = 0;
+    virtual size_t      maxCapacity() const = 0;
 
-    void printInfo(ostream& out) const override {
-        out << "[Freight] ID: " << getId()
-            << ", Loc: " << getLocation()
-            << ", Time: " << getTime()
-            << ", RemCap: " << remainingCapacity_
-            << "\n";
-    }
+private:
+    std::string id_;
+    std::string location_;
+    time_t      timestamp_;
+    size_t      capacity_;
 };
+
+// for easy printing, if you like:
+inline std::ostream& operator<<(std::ostream& os, const Freight& f) {
+    return os
+        << f.getId() << ' '
+        << f.getLocation() << ' '
+        << f.getTime() << ' '
+        << f.typeName();
+}
 
 #endif // FREIGHT_H

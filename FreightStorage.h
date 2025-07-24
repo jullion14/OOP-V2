@@ -1,36 +1,52 @@
+// FreightStorage.h
 #ifndef FREIGHTSTORAGE_H
 #define FREIGHTSTORAGE_H
 
 #include <vector>
 #include <memory>
 #include <string>
-#include <ostream>
-#include "Freight.h"
-using namespace std;
+#include <map>
+#include <iostream>    // for std::cout in default args
+#include "FreightFactory.h"
 
 class FreightStorage {
-    vector<shared_ptr<Freight>> freights_;
-public:
-    // File I/O
-    void loadFreightFromFile(const string& filename);
-    void saveFreightToFile(const string& filename) const;
+    std::vector<std::shared_ptr<Freight>> freights_;
+    std::map<std::string, std::unique_ptr<FreightFactory>> factories_;
 
-    // Access in-memory list
-    const vector<shared_ptr<Freight>>& getFreightList() const {
+public:
+    // Register a concrete factory under the given key
+    void registerFactory(const std::string& type,
+        std::unique_ptr<FreightFactory> factory);
+
+    // Load/save CSV
+    void loadFreightFromFile(const std::string& filename);
+    void saveFreightToFile(const std::string& filename) const;
+
+    // Accessors
+    const std::vector<std::shared_ptr<Freight>>& getFreightList() const {
         return freights_;
     }
 
-    // ID generation & CRUD
-    string generateNextFreightId() const;
-    void   addFreight(const shared_ptr<Freight>& freight);
-    bool   editFreight(const string& id,
-        const string& newLoc,
+    // **NEW**: expose the factory by key
+    // returns nullptr if the key isn't registered
+    FreightFactory* getFactory(const std::string& key) const {
+        auto it = factories_.find(key);
+        return it == factories_.end()
+            ? nullptr
+            : it->second.get();
+    }
+
+    // ID + CRUD
+    std::string generateNextFreightId() const;
+    void addFreight(const std::shared_ptr<Freight>& freight);
+    bool editFreight(const std::string& id,
+        const std::string& newLoc,
         time_t         newTime,
         int            newType);
-    bool   removeFreightById(const string& id);
+    bool removeFreightById(const std::string& id);
 
     // Display helper
-    void displayFreight(ostream& out = cout) const;
+    void displayFreight(std::ostream& out = std::cout) const;
 };
 
 #endif // FREIGHTSTORAGE_H

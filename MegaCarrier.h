@@ -1,3 +1,4 @@
+// MegaCarrier.h
 #ifndef MEGACARRIER_H
 #define MEGACARRIER_H
 
@@ -8,10 +9,12 @@ public:
     MegaCarrier(const std::string& id,
         const std::string& loc,
         time_t             t)
-        : Freight(id, loc, t, /*cap=*/12)
-    {
+        : Freight(id, loc, t, /*cap=*/12) {
     }
-    size_t maxCapacity() const override { return 12; }
+
+    // implement both pure-virtuals:
+    std::string typeName()   const override { return "MegaCarrier"; }
+    size_t      maxCapacity() const override { return 12; }
 };
 
 #endif // MEGACARRIER_H

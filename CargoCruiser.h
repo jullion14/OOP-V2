@@ -1,3 +1,4 @@
+// CargoCruiser.h
 #ifndef CARGOCRUISER_H
 #define CARGOCRUISER_H
 
@@ -8,10 +9,12 @@ public:
     CargoCruiser(const std::string& id,
         const std::string& loc,
         time_t             t)
-        : Freight(id, loc, t, /*cap=*/6)
-    {
+        : Freight(id, loc, t, /*cap=*/6) {
     }
-    size_t maxCapacity() const override { return 6; }
+
+    // implement both pure-virtuals:
+    std::string typeName()   const override { return "CargoCruiser"; }
+    size_t      maxCapacity() const override { return 6; }
 };
 
 #endif // CARGOCRUISER_H
