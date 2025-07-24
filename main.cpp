@@ -1,44 +1,78 @@
 // done by: Lee Zhi Hong Joseph
 
-
-// main.cpp
 #include <iostream>
 #include <limits>
 #include <algorithm>
 #include <iomanip>
 #include <string>
-#include <sstream>          // for ostringstream
-#include <memory>           // for unique_ptr, shared_ptr
+#include <sstream>
+#include <memory>
 
 #include "CargoStorage.h"
 #include "FreightStorage.h"
 #include "MatchedStorage.h"
-#include "FreightFactory.h"
 #include "MiniMoverFactory.h"
 #include "CargoCruiserFactory.h"
 #include "MegaCarrierFactory.h"
-#include "MiniMover.h"
-#include "CargoCruiser.h"
-#include "MegaCarrier.h"
 #include "TimeWindowStrategy.h"
 
 using namespace std;
 
-// forward declarations
-void showMainMenu();
-int  getUserChoice(int min = 1, int max = 12);
-
-string getFreightType(const shared_ptr<Freight>& f) {
-    if (dynamic_cast<MiniMover*>(f.get()))        return "MiniMover";
-    else if (dynamic_cast<CargoCruiser*>(f.get())) return "CargoCruiser";
-    else if (dynamic_cast<MegaCarrier*>(f.get()))  return "MegaCarrier";
-    else                                           return "Unknown";
+/**
+ * @brief Display the main menu options to the user.
+ */
+void showMainMenu() {
+    cout << "\n===== Main Menu =====\n"
+        << " 1) Display Cargo & Freight\n"
+        << " 2) Display current schedule\n"
+        << " 3) Add Cargo\n"
+        << " 4) Edit Cargo\n"
+        << " 5) Delete Cargo\n"
+        << " 6) Add Freight\n"
+        << " 7) Edit Freight\n"
+        << " 8) Delete Freight\n"
+        << " 9) Generate & view schedule\n"
+        << "10) Save schedule to file\n"
+        << "11) Save & exit\n"
+        << "12) Exit without saving\n"
+        << "Select (1-12): ";
 }
 
-// helper to print cargo + freight side-by-side
-void printSideBySide(const CargoStorage& cs,
-    const FreightStorage& fs)
-{
+/**
+ * @brief Get and validate user's menu choice.
+ * @param min Minimum valid menu option.
+ * @param max Maximum valid menu option.
+ * @return Chosen integer value.
+ */
+int getUserChoice(int min = 1, int max = 12) {
+    int c;
+    while (!(cin >> c) || c < min || c > max) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Enter valid option (" << min << "-" << max << "): ";
+    }
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    return c;
+}
+
+/**
+ * @brief Get the subtype name for a freight pointer (RTTI).
+ * @param f Shared pointer to Freight.
+ * @return Freight subtype as a string.
+ */
+string getFreightType(const shared_ptr<Freight>& f) {
+    if (dynamic_cast<MiniMover*>(f.get()))      return "MiniMover";
+    if (dynamic_cast<CargoCruiser*>(f.get()))   return "CargoCruiser";
+    if (dynamic_cast<MegaCarrier*>(f.get()))    return "MegaCarrier";
+    return "Unknown";
+}
+
+/**
+ * @brief Print both cargo and freight lists side-by-side.
+ * @param cs Reference to CargoStorage.
+ * @param fs Reference to FreightStorage.
+ */
+void printSideBySide(const CargoStorage& cs, const FreightStorage& fs) {
     const auto& cl = cs.getCargoList();
     const auto& fl = fs.getFreightList();
     size_t rows = max(cl.size(), fl.size());
@@ -50,12 +84,11 @@ void printSideBySide(const CargoStorage& cs,
         << setw(8) << "Group"
         << " | "
         << setw(12) << "F_ID"
-        << setw(15) << "Refuel Stop"
+        << setw(15) << "Location"
         << setw(8) << "Time"
         << setw(14) << "Type"
         << "\n"
-        << string(10 + 15 + 8 + 8 + 3 + 12 + 15 + 8 + 14, '-')
-        << "\n";
+        << string(10 + 15 + 8 + 8 + 3 + 12 + 15 + 8 + 14, '-') << "\n";
 
     for (size_t i = 0; i < rows; ++i) {
         // Cargo side
@@ -88,17 +121,21 @@ void printSideBySide(const CargoStorage& cs,
     }
 }
 
+/**
+ * @brief Main user interface loop and application logic.
+ * Handles loading, saving, user input, and all main menu actions.
+ */
 int main() {
     CargoStorage   cs;
     FreightStorage fs;
     MatchedStorage ms;
 
-    // 1) Register all Freight factories
+    // Register all available freight factories.
     fs.registerFactory("MiniMover", make_unique<MiniMoverFactory>());
     fs.registerFactory("CargoCruiser", make_unique<CargoCruiserFactory>());
     fs.registerFactory("MegaCarrier", make_unique<MegaCarrierFactory>());
 
-    // 2) Load from files
+    // Load cargo and freight from files.
     cs.loadCargoFromFile("Cargo.txt");
     fs.loadFreightFromFile("Freight.txt");
 
@@ -215,7 +252,6 @@ int main() {
             string id = fs.generateNextFreightId();
             cout << "New Freight ID: " << id << "\n";
 
-            // Require at least one alphabetic character in location
             string loc;
             while (true) {
                 cout << "Location: ";
@@ -368,32 +404,4 @@ int main() {
     }
 
     return 0;
-}
-
-void showMainMenu() {
-    cout << "\n===== Main Menu =====\n"
-        << " 1) Display Cargo & Freight\n"
-        << " 2) Display current schedule\n"
-        << " 3) Add Cargo\n"
-        << " 4) Edit Cargo\n"
-        << " 5) Delete Cargo\n"
-        << " 6) Add Freight\n"
-        << " 7) Edit Freight\n"
-        << " 8) Delete Freight\n"
-        << " 9) Generate & view schedule\n"
-        << "10) Save schedule to file\n"
-        << "11) Save & exit\n"
-        << "12) Exit without saving\n"
-        << "Select (1-12): ";
-}
-
-int getUserChoice(int min, int max) {
-    int c;
-    while (!(cin >> c) || c < min || c > max) {
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "Enter valid option (" << min << "-" << max << "): ";
-    }
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    return c;
 }

@@ -1,18 +1,21 @@
 // done by: Lim Ding Huang Jonas
 
-
 #include "CargoStorage.h"
 #include <fstream>
 #include <sstream>
 #include <algorithm>
 #include <iomanip>
 
+/**
+ * @brief Load cargo records from a CSV file into memory.
+ * @param fn Input file path.
+ */
 void CargoStorage::loadCargoFromFile(const std::string& fn) {
     std::ifstream in(fn);
-    if (!in) return;
+    if (!in) return;  // Fail quietly if file cannot be opened
     std::string line;
     while (std::getline(in, line)) {
-        if (line.empty()) continue;
+        if (line.empty()) continue;  // Skip empty lines
         std::stringstream ss(line);
         std::string id, loc, tstr, gstr;
         if (!std::getline(ss, id, ','))   continue;
@@ -25,6 +28,10 @@ void CargoStorage::loadCargoFromFile(const std::string& fn) {
     }
 }
 
+/**
+ * @brief Save all in-memory cargo records to a CSV file.
+ * @param fn Output file path.
+ */
 void CargoStorage::saveCargoToFile(const std::string& fn) const {
     std::ofstream out(fn);
     for (auto const& c : cargos_) {
@@ -35,6 +42,10 @@ void CargoStorage::saveCargoToFile(const std::string& fn) const {
     }
 }
 
+/**
+ * @brief Generate a new unique cargo ID (e.g., C01, C02...).
+ * @return Next available cargo ID as a string.
+ */
 std::string CargoStorage::generateNextCargoId() const {
     int maxNum = 0;
     for (auto const& c : cargos_) {
@@ -48,10 +59,22 @@ std::string CargoStorage::generateNextCargoId() const {
     return oss.str();
 }
 
+/**
+ * @brief Add a Cargo object to memory.
+ * @param cargo Shared pointer to the Cargo to add.
+ */
 void CargoStorage::addCargo(const std::shared_ptr<Cargo>& cargo) {
     cargos_.push_back(cargo);
 }
 
+/**
+ * @brief Edit an existing cargo record (by ID).
+ * @param id       Cargo ID to modify.
+ * @param newLoc   New location.
+ * @param newTime  New time value.
+ * @param newGroup New group size.
+ * @return true if updated, false if not found.
+ */
 bool CargoStorage::editCargo(const std::string& id,
     const std::string& newLoc,
     time_t             newTime,
@@ -68,6 +91,11 @@ bool CargoStorage::editCargo(const std::string& id,
     return false;
 }
 
+/**
+ * @brief Remove a cargo record by ID.
+ * @param id Cargo ID to remove.
+ * @return true if removed, false if not found.
+ */
 bool CargoStorage::removeCargoById(const std::string& id) {
     auto before = cargos_.size();
     cargos_.erase(
@@ -77,6 +105,10 @@ bool CargoStorage::removeCargoById(const std::string& id) {
     return cargos_.size() != before;
 }
 
+/**
+ * @brief Print all cargo records in a formatted table.
+ * @param out Output stream (default: std::cout).
+ */
 void CargoStorage::displayCargo(std::ostream& out) const {
     out << std::left
         << std::setw(10) << "C_ID"

@@ -1,6 +1,5 @@
 // done by: Loh Kaize Kaiser
 
-
 // MatchedStorage.cpp
 
 #include "MatchedStorage.h"
@@ -18,36 +17,42 @@
 
 #include "TimeWindowStrategy.h"
 
+/**
+ * @brief Generate matches between freights and cargoes using the current matching strategy.
+ *        Prioritizes larger freights, tracks remaining capacities, and fills as much as possible.
+ * @param fs Reference to FreightStorage containing all freights.
+ * @param cs Reference to CargoStorage containing all cargoes.
+ */
 void MatchedStorage::generateMatches(const FreightStorage& fs,
     const CargoStorage& cs)
 {
-    // default to +/-15 min if no strategy set
+    // If no strategy is set, default to a 15-minute time window.
     if (!strategy_) {
         strategy_ = std::make_unique<TimeWindowStrategy>(15);
     }
 
     matchedList_.clear();
 
-    // 1) sort freights by descending capacity
+    // 1) Sort freights by descending max capacity for optimal filling.
     auto freights = fs.getFreightList();
     std::sort(freights.begin(), freights.end(),
         [](auto const& a, auto const& b) {
             return a->maxCapacity() > b->maxCapacity();
         });
 
-    // 2) track remaining capacity
+    // 2) Track remaining capacity for each freight.
     std::unordered_map<std::shared_ptr<Freight>, size_t> capRem;
     for (auto const& f : freights) {
         capRem[f] = f->maxCapacity();
     }
 
-    // 3) track remaining cargo
+    // 3) Track remaining group size for each cargo.
     std::unordered_map<std::shared_ptr<Cargo>, int> cargoRem;
     for (auto const& c : cs.getCargoList()) {
         cargoRem[c] = c->getGroupSize();
     }
 
-    // 4) matching loop
+    // 4) Try to fill cargo into freights as allowed by the matching strategy.
     for (auto const& c : cs.getCargoList()) {
         while (cargoRem[c] > 0) {
             bool loaded = false;
@@ -64,11 +69,14 @@ void MatchedStorage::generateMatches(const FreightStorage& fs,
                 loaded = true;
                 break;
             }
-            if (!loaded) break;
+            if (!loaded) break; // Can't match this cargo any further
         }
     }
 }
 
+/**
+ * @brief Remove matches whose freight or cargo pointers are expired.
+ */
 void MatchedStorage::pruneExpired()
 {
     matchedList_.erase(
@@ -78,6 +86,12 @@ void MatchedStorage::pruneExpired()
         matchedList_.end());
 }
 
+/**
+ * @brief Save the current schedule of matches and unmatched cargoes to a text file.
+ * @param filename Name of the output file.
+ * @param fs FreightStorage reference (not used).
+ * @param cs CargoStorage reference.
+ */
 void MatchedStorage::saveSchedule(const std::string& filename,
     const FreightStorage& /*fs*/,
     const CargoStorage& cs) const
@@ -85,16 +99,14 @@ void MatchedStorage::saveSchedule(const std::string& filename,
     std::ofstream out(filename);
     out << "Matched:\n\n";
 
-    // 1) group by freight
+    // 1) Group matches by freight.
     std::map<std::shared_ptr<Freight>, std::vector<Matcher>> groups;
     for (auto const& m : matchedList_) {
         if (!m.isValid()) continue;
         groups[m.getFreight()].push_back(m);
     }
 
-    // 2) move into vector and sort by
-    //    (a) freight time ascending, then
-    //    (b) maxCapacity() descending
+    // 2) Sort groups by time (ascending) and max capacity (descending).
     std::vector<std::pair<std::shared_ptr<Freight>, std::vector<Matcher>>> sortedGroups(
         groups.begin(), groups.end());
     std::sort(sortedGroups.begin(), sortedGroups.end(),
@@ -105,21 +117,21 @@ void MatchedStorage::saveSchedule(const std::string& filename,
             return fA->maxCapacity() > fB->maxCapacity();
         });
 
-    // 3) print matched in the new order
+    // 3) Output the matches for each freight.
     for (auto const& kv : sortedGroups) {
         auto f = kv.first;
-        // format time
+        // Format time as four digits (HHMM)
         std::ostringstream tf;
         tf << std::setw(4) << std::setfill('0') << f->getTime();
 
-        // compute used & remaining capacity
+        // Compute used and remaining capacity.
         size_t used = 0;
         for (auto const& m : kv.second) {
             used += m.getAssignedSize();
         }
         size_t rem = f->maxCapacity() - used;
 
-        // header with capacity suffix
+        // Header showing freight info and available slots.
         out << "Freight: " << f->getId()
             << " - " << f->getLocation()
             << ", " << tf.str()
@@ -130,7 +142,7 @@ void MatchedStorage::saveSchedule(const std::string& filename,
             << "\n"
             << std::string(50, '-') << "\n";
 
-        // the matched cargo lines
+        // List all matched cargo for this freight.
         for (auto const& m : kv.second) {
             out << m.getCargo()->getId()
                 << " - Size: " << m.getAssignedSize() << "\n"
@@ -139,7 +151,7 @@ void MatchedStorage::saveSchedule(const std::string& filename,
         out << "\n";
     }
 
-    // 4) compute & print unmatched
+    // 4) Find and output any unmatched cargo.
     std::unordered_map<std::shared_ptr<Cargo>, int> assigned;
     for (auto const& m : matchedList_) {
         if (!m.isValid()) continue;
@@ -155,20 +167,24 @@ void MatchedStorage::saveSchedule(const std::string& filename,
     }
 }
 
+/**
+ * @brief Print the current schedule to the console, grouped by freight and listing unmatched cargo.
+ * @param fs FreightStorage reference (not used).
+ * @param cs CargoStorage reference.
+ */
 void MatchedStorage::displaySchedule(const FreightStorage& /*fs*/,
     const CargoStorage& cs) const
 {
     std::cout << "Matched:\n\n";
 
-    // 1) group by freight
+    // 1) Group matches by freight.
     std::map<std::shared_ptr<Freight>, std::vector<Matcher>> groups;
     for (auto const& m : matchedList_) {
         if (!m.isValid()) continue;
         groups[m.getFreight()].push_back(m);
     }
 
-    // 2) move into vector and sort by
-    //    (a) time, then (b) capacity
+    // 2) Sort groups by time (ascending) and max capacity (descending).
     std::vector<std::pair<std::shared_ptr<Freight>, std::vector<Matcher>>> sortedGroups(
         groups.begin(), groups.end());
     std::sort(sortedGroups.begin(), sortedGroups.end(),
@@ -179,21 +195,18 @@ void MatchedStorage::displaySchedule(const FreightStorage& /*fs*/,
             return fA->maxCapacity() > fB->maxCapacity();
         });
 
-    // 3) print matched in new order
+    // 3) Output the matches for each freight.
     for (auto const& kv : sortedGroups) {
         auto f = kv.first;
-        // format time
         std::ostringstream tf;
         tf << std::setw(4) << std::setfill('0') << f->getTime();
 
-        // compute used & remaining capacity
         size_t used = 0;
         for (auto const& m : kv.second) {
             used += m.getAssignedSize();
         }
         size_t rem = f->maxCapacity() - used;
 
-        // header with capacity suffix
         std::cout << "Freight: " << f->getId()
             << " - " << f->getLocation()
             << ", " << tf.str()
@@ -204,7 +217,6 @@ void MatchedStorage::displaySchedule(const FreightStorage& /*fs*/,
             << "\n"
             << std::string(50, '-') << "\n";
 
-        // the matched cargo lines
         for (auto const& m : kv.second) {
             std::cout << m.getCargo()->getId()
                 << " - Size: " << m.getAssignedSize() << "\n"
@@ -213,7 +225,7 @@ void MatchedStorage::displaySchedule(const FreightStorage& /*fs*/,
         std::cout << "\n";
     }
 
-    // 4) compute & print unmatched
+    // 4) Find and output any unmatched cargo.
     std::unordered_map<std::shared_ptr<Cargo>, int> assigned;
     for (auto const& m : matchedList_) {
         if (!m.isValid()) continue;

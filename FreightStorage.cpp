@@ -1,6 +1,5 @@
 // done by: Lim Ding Huang Jonas
 
-
 // FreightStorage.cpp
 #include "FreightStorage.h"
 #include <fstream>
@@ -10,12 +9,21 @@
 
 using namespace std;
 
+/**
+ * @brief Register a new freight factory with a type key.
+ * @param type String type identifier (e.g., "MiniMover").
+ * @param factory Unique pointer to the FreightFactory implementation.
+ */
 void FreightStorage::registerFactory(const string& type,
     unique_ptr<FreightFactory> factory)
 {
     factories_[type] = move(factory);
 }
 
+/**
+ * @brief Load all freight records from a CSV file.
+ * @param fn Input file path.
+ */
 void FreightStorage::loadFreightFromFile(const string& fn) {
     ifstream in(fn);
     if (!in) return;
@@ -38,6 +46,10 @@ void FreightStorage::loadFreightFromFile(const string& fn) {
     }
 }
 
+/**
+ * @brief Save all freight records to a CSV file.
+ * @param fn Output file path.
+ */
 void FreightStorage::saveFreightToFile(const string& fn) const {
     ofstream out(fn);
     for (auto const& f : freights_) {
@@ -48,6 +60,10 @@ void FreightStorage::saveFreightToFile(const string& fn) const {
     }
 }
 
+/**
+ * @brief Generate the next unique freight ID (e.g., F01, F02...).
+ * @return String of the next available ID.
+ */
 string FreightStorage::generateNextFreightId() const {
     int maxNum = 0;
     for (auto const& f : freights_) {
@@ -60,10 +76,22 @@ string FreightStorage::generateNextFreightId() const {
     return oss.str();
 }
 
+/**
+ * @brief Add a new Freight object to memory.
+ * @param freight Shared pointer to Freight to add.
+ */
 void FreightStorage::addFreight(const shared_ptr<Freight>& freight) {
     freights_.push_back(freight);
 }
 
+/**
+ * @brief Edit an existing freight record (by ID).
+ * @param id       ID of the freight to modify.
+ * @param newLoc   New location.
+ * @param newTime  New available time.
+ * @param newType  New type as int (0=keep type, 1=MiniMover, 2=Cruiser, 3=MegaCarrier).
+ * @return true if update succeeded, false otherwise.
+ */
 bool FreightStorage::editFreight(const string& id,
     const string& newLoc,
     time_t         newTime,
@@ -76,7 +104,7 @@ bool FreightStorage::editFreight(const string& id,
                 f->setTime(newTime);
             }
             else {
-                // map numeric code ? key string
+                // Convert type int to type string key
                 string key = (newType == 1 ? "MiniMover"
                     : newType == 2 ? "CargoCruiser"
                     : "MegaCarrier");
@@ -91,6 +119,11 @@ bool FreightStorage::editFreight(const string& id,
     return false;
 }
 
+/**
+ * @brief Remove a freight record by ID.
+ * @param id ID to remove.
+ * @return true if removed, false otherwise.
+ */
 bool FreightStorage::removeFreightById(const string& id) {
     auto before = freights_.size();
     freights_.erase(
@@ -100,6 +133,10 @@ bool FreightStorage::removeFreightById(const string& id) {
     return freights_.size() != before;
 }
 
+/**
+ * @brief Print all freight records in a formatted table.
+ * @param out Output stream (default: std::cout).
+ */
 void FreightStorage::displayFreight(ostream& out) const {
     out << left
         << setw(12) << "F_ID"
