@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <string>
 #include <sstream>          // for ostringstream
-#include <memory>           // for unique_ptr
+#include <memory>           // for unique_ptr, shared_ptr
 
 #include "CargoStorage.h"
 #include "FreightStorage.h"
@@ -16,7 +16,7 @@
 #include "MiniMover.h"
 #include "CargoCruiser.h"
 #include "MegaCarrier.h"
-#include "TimeWindowStrategy.h"      // <-- added
+#include "TimeWindowStrategy.h"
 
 using namespace std;
 
@@ -54,7 +54,7 @@ void printSideBySide(const CargoStorage& cs,
         << "\n";
 
     for (size_t i = 0; i < rows; ++i) {
-        // --- Cargo side ---
+        // Cargo side
         if (i < cl.size()) {
             auto const& c = cl[i];
             ostringstream cOss;
@@ -70,7 +70,7 @@ void printSideBySide(const CargoStorage& cs,
 
         cout << " | ";
 
-        // --- Freight side ---
+        // Freight side
         if (i < fl.size()) {
             auto const& f = fl[i];
             ostringstream fOss;
@@ -80,7 +80,6 @@ void printSideBySide(const CargoStorage& cs,
                 << setw(8) << fOss.str()
                 << setw(14) << getFreightType(f);
         }
-
         cout << "\n";
     }
 }
@@ -186,7 +185,7 @@ int main() {
             break;
         }
 
-        case 6: {  // Add Freight (using Factory Method)
+        case 6: {  // Add Freight
             string id = fs.generateNextFreightId();
             cout << "New Freight ID: " << id << "\nLocation: ";
             string loc; getline(cin, loc);
@@ -213,7 +212,6 @@ int main() {
                 cout << "Invalid. Try again.\n";
             }
 
-            // Factory Method
             unique_ptr<FreightFactory> factory;
             switch (ty) {
             case 1: factory = make_unique<MiniMoverFactory>();    break;
@@ -227,9 +225,23 @@ int main() {
             break;
         }
 
-        case 7: {  // Edit Freight
+        case 7: {  // Edit Freight with validation
             cout << "Enter Freight ID to edit: ";
             string id; getline(cin, id);
+
+            // validate exists
+            {
+                const auto& fl = fs.getFreightList();
+                auto it = find_if(fl.begin(), fl.end(),
+                    [&](const shared_ptr<Freight>& f) {
+                        return f->getId() == id;
+                    });
+                if (it == fl.end()) {
+                    cout << "Freight ID not found.\n";
+                    break;
+                }
+            }
+
             cout << "New Location: ";
             string loc; getline(cin, loc);
 
@@ -246,7 +258,7 @@ int main() {
 
             cout << "Change type? 0=keep,1=MiniMover,2=Cruiser,3=Mega: ";
             int ty;
-            while (!(cin >> ty) || ty < 0 || ty > 3) {
+            while (!(cin >> ty) || ty < 0 || ty>3) {
                 cin.clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cout << "Enter 0-3: ";
@@ -254,10 +266,9 @@ int main() {
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
             if (ty == 0) {
-                if (fs.editFreight(id, loc, t, 0))
-                    cout << "Freight updated.\n";
-                else
-                    cout << "Freight ID not found.\n";
+                fs.editFreight(id, loc, t, 0)
+                    ? cout << "Freight updated.\n"
+                    : cout << "Freight ID not found.\n";
             }
             else {
                 unique_ptr<FreightFactory> factory;
@@ -274,19 +285,29 @@ int main() {
             break;
         }
 
-        case 8:
+        case 8: {  // Delete Freight with validation
             cout << "Enter Freight ID to delete: ";
+            string id; getline(cin, id);
+
+            // validate exists
             {
-                string id; getline(cin, id);
-                if (fs.removeFreightById(id))
-                    cout << "Freight deleted.\n";
-                else
+                const auto& fl = fs.getFreightList();
+                auto it = find_if(fl.begin(), fl.end(),
+                    [&](const shared_ptr<Freight>& f) {
+                        return f->getId() == id;
+                    });
+                if (it == fl.end()) {
                     cout << "Freight ID not found.\n";
+                    break;
+                }
             }
+
+            fs.removeFreightById(id);
+            cout << "Freight deleted.\n";
             break;
+        }
 
         case 9:
-            // Strategy Method
             ms.setStrategy(make_unique<TimeWindowStrategy>(15));
             ms.generateMatches(fs, cs);
             ms.pruneExpired();
