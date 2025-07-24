@@ -1,8 +1,4 @@
-Here's a polished and more informative version of your `README.md`, with improved structure, badges, and clearer language:
-
----
-
-```markdown
+```
 # 🚢 OOP-V2 – Cargo & Freight Matching Simulator
 
 > A console-based C++ project that showcases clean object-oriented programming by solving a practical logistics problem: **matching cargo items to suitable freight options and generating a shipping schedule**.
@@ -35,7 +31,6 @@ Here's a polished and more informative version of your `README.md`, with improve
 ## 📂 File Structure
 
 ```
-
 .
 ├── Cargo.h / .cpp         # Cargo item class and utilities
 ├── Freight.h / .cpp       # Freight offer class and utilities
@@ -50,9 +45,6 @@ Here's a polished and more informative version of your `README.md`, with improve
 └── main.cpp               # Program entry point
 
 ````
-
----
-
 ## 🚀 Getting Started
 
 ### ✅ Prerequisites
@@ -70,9 +62,7 @@ g++ -std=c++17 -Wall -Wextra -pedantic -o oop_v2 src/*.cpp
 ````
 
 > Ensure your source files are located under a `src/` directory or adjust the path accordingly.
-
----
-
+```
 ## 👥 Contributors
 
 * **jullion14**
@@ -81,22 +71,8 @@ g++ -std=c++17 -Wall -Wextra -pedantic -o oop_v2 src/*.cpp
 * **GhosterRoller**
 * **Leepq**
 
----
-
 ## 📜 License
 
 This project is for educational use only. Feel free to fork, explore, or improve!
 
-```
-
----
-
-Let me know if you'd like to add:
-
-- screenshots / sample output
-- a full example scenario
-- a "Usage" section or command-line interface details
-- license info (MIT, GPL, etc.)
-
-Would you like me to replace the original file with this updated version?
 ```
