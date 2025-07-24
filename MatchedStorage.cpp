@@ -88,18 +88,23 @@ void MatchedStorage::saveSchedule(const std::string& filename,
         groups[m.getFreight()].push_back(m);
     }
 
-    // 2) move into vector and sort by freight time (earliest first)
+    // 2) move into vector and sort by
+    //    (a) freight time ascending, then
+    //    (b) maxCapacity() descending
     std::vector<std::pair<std::shared_ptr<Freight>, std::vector<Matcher>>> sortedGroups(
         groups.begin(), groups.end());
     std::sort(sortedGroups.begin(), sortedGroups.end(),
-        [](auto const& a, auto const& b) {
-            return a.first->getTime() < b.first->getTime();
+        [](auto const& A, auto const& B) {
+            auto fA = A.first, fB = B.first;
+            if (fA->getTime() != fB->getTime())
+                return fA->getTime() < fB->getTime();
+            // second priority: larger capacity first
+            return fA->maxCapacity() > fB->maxCapacity();
         });
 
-    // 3) print matched in time order
+    // 3) print matched in the new order
     for (auto const& kv : sortedGroups) {
         auto f = kv.first;
-
         std::ostringstream tf;
         tf << std::setw(4) << std::setfill('0') << f->getTime();
 
@@ -144,15 +149,19 @@ void MatchedStorage::displaySchedule(const FreightStorage& /*fs*/,
         groups[m.getFreight()].push_back(m);
     }
 
-    // 2) move into vector and sort by freight time
+    // 2) move into vector and sort by
+    //    (a) time, then (b) capacity
     std::vector<std::pair<std::shared_ptr<Freight>, std::vector<Matcher>>> sortedGroups(
         groups.begin(), groups.end());
     std::sort(sortedGroups.begin(), sortedGroups.end(),
-        [](auto const& a, auto const& b) {
-            return a.first->getTime() < b.first->getTime();
+        [](auto const& A, auto const& B) {
+            auto fA = A.first, fB = B.first;
+            if (fA->getTime() != fB->getTime())
+                return fA->getTime() < fB->getTime();
+            return fA->maxCapacity() > fB->maxCapacity();
         });
 
-    // 3) print matched in time order
+    // 3) print matched in new order
     for (auto const& kv : sortedGroups) {
         auto f = kv.first;
         std::ostringstream tf;
