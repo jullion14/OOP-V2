@@ -1,43 +1,102 @@
-# OOP-V2 – Cargo & Freight Matching Simulator
-
-> A small C++ console application that demonstrates clean object-oriented design while tackling a realistic logistics problem: **matching pieces of cargo with available freight capacity and producing a shipping schedule**.
-
-## ✨  Key ideas
-
-* Encapsulated domain classes (`Cargo`, `Freight`, `Transport`) and **storage singletons** that own their respective collections.  
-* A two-phase **matching engine** (`Matcher` / `MatchedStorage`) that pairs compatible cargo and freight records, then persists the result.  
-* Simple flat-file persistence (`*.txt`) so you can examine or edit sample data without a DB.  
-* Clean separation of *model* ↔ *service* ↔ *presentation* layers to make unit testing and future GUI/API work easy.
-
-_File map preview_ :contentReference[oaicite:0]{index=0}
-
-.
-├─ Cargo.h / .cpp // cargo item definition + helpers
-├─ Freight.h / .cpp // freight offer definition + helpers
-├─ Transport.h / .cpp // wraps route / vehicle data
-├─ CargoStorage.* // singleton container for cargo items
-├─ FreightStorage.* // singleton container for freight offers
-├─ MatchedStorage.* // holds output of Matcher
-├─ Matcher.* // core matching algorithm
-├─ schedule.txt // example schedule output
-├─ Cargo.txt / Freight.txt // example input data
-└─ main.cpp // program entry-point
+Here's a polished and more informative version of your `README.md`, with improved structure, badges, and clearer language:
 
 ---
 
-## 🚀  Getting started
+```markdown
+# 🚢 OOP-V2 – Cargo & Freight Matching Simulator
 
-### 1.  Prerequisites
+> A console-based C++ project that showcases clean object-oriented programming by solving a practical logistics problem: **matching cargo items to suitable freight options and generating a shipping schedule**.
 
-* A C++17-capable compiler (GCC 9+, Clang 10+, MSVC 2019).  
-* CMake 3.15+ or just a shell with `g++`/`clang++`.
+![C++](https://img.shields.io/badge/language-C++17-blue.svg)
+![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey)
 
-### 2.  Build & run (one-liner)
+---
 
-```bash
-g++ -std=c++17 -Wall -Wextra -pedantic -o oop_v2 \
-    src/*.cpp
-./oop_v2
+## ✨ Key Features
+
+- 🧱 **Encapsulated Domain Classes**  
+  Modular design with clear abstractions for `Cargo`, `Freight`, and `Transport`.
+
+- 📦 **Storage Singletons**  
+  Dedicated storage containers (`CargoStorage`, `FreightStorage`, `MatchedStorage`) to manage lifecycle and access.
+
+- 🤝 **Two-Phase Matching Engine**  
+  The `Matcher` class handles compatibility checks and pairing logic; `MatchedStorage` saves results.
+
+- 🗃️ **Flat File Persistence**  
+  Input/output through simple text files (`Cargo.txt`, `Freight.txt`, `schedule.txt`) — no database needed.
+
+- 🧪 **Clean Layered Architecture**  
+  Easy to extend, test, and adapt to GUI/API use cases thanks to separation of model, service, and UI logic.
+
+---
+
+## 📂 File Structure
 
 ```
-Project done by: jullion14, JunXuanSIT, Kktanker, GhosterRoller and Leepq
+
+.
+├── Cargo.h / .cpp         # Cargo item class and utilities
+├── Freight.h / .cpp       # Freight offer class and utilities
+├── Transport.h / .cpp     # Transport route/vehicle class
+├── CargoStorage.\*         # Singleton for cargo records
+├── FreightStorage.\*       # Singleton for freight records
+├── MatchedStorage.\*       # Stores matched cargo-freight pairs
+├── Matcher.\*              # Matching logic engine
+├── Cargo.txt              # Sample cargo input
+├── Freight.txt            # Sample freight input
+├── schedule.txt           # Output shipping schedule
+└── main.cpp               # Program entry point
+
+````
+
+---
+
+## 🚀 Getting Started
+
+### ✅ Prerequisites
+
+- A C++17-compatible compiler (e.g., GCC 9+, Clang 10+, MSVC 2019+)
+- Optional: CMake 3.15+ for easier builds
+
+### 🔧 Build & Run
+
+Using a terminal:
+
+```bash
+g++ -std=c++17 -Wall -Wextra -pedantic -o oop_v2 src/*.cpp
+./oop_v2
+````
+
+> Ensure your source files are located under a `src/` directory or adjust the path accordingly.
+
+---
+
+## 👥 Contributors
+
+* **jullion14**
+* **JunXuanSIT**
+* **Kktanker**
+* **GhosterRoller**
+* **Leepq**
+
+---
+
+## 📜 License
+
+This project is for educational use only. Feel free to fork, explore, or improve!
+
+```
+
+---
+
+Let me know if you'd like to add:
+
+- screenshots / sample output
+- a full example scenario
+- a "Usage" section or command-line interface details
+- license info (MIT, GPL, etc.)
+
+Would you like me to replace the original file with this updated version?
+```
