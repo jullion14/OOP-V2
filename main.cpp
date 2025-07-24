@@ -22,7 +22,7 @@ using namespace std;
 
 // forward declarations
 void showMainMenu();
-int  getUserChoice(int min = 1, int max = 11);
+int  getUserChoice(int min = 1, int max = 12);
 
 string getFreightType(const shared_ptr<Freight>& f) {
     if (dynamic_cast<MiniMover*>(f.get()))        return "MiniMover";
@@ -287,7 +287,7 @@ int main() {
 
         case 9:
             // Strategy Method
-            ms.setStrategy(std::make_unique<TimeWindowStrategy>(15));
+            ms.setStrategy(make_unique<TimeWindowStrategy>(15));
             ms.generateMatches(fs, cs);
             ms.pruneExpired();
             ms.displaySchedule(fs, cs);
@@ -300,6 +300,11 @@ int main() {
 
         case 11:
             cs.saveCargoToFile("Cargo.txt");
+            exitFlag = true;
+            break;
+
+        case 12:
+            // Exit without saving
             exitFlag = true;
             break;
         }
@@ -321,7 +326,8 @@ void showMainMenu() {
         << " 9) Generate & view schedule\n"
         << "10) Save schedule to file\n"
         << "11) Save & exit\n"
-        << "Select (1-11): ";
+        << "12) Exit without saving\n"
+        << "Select (1-12): ";
 }
 
 int getUserChoice(int min, int max) {
