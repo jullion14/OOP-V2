@@ -90,12 +90,12 @@ int main() {
     FreightStorage fs;
     MatchedStorage ms;
 
-    // ??? 1) Register all Freight factories ???????????????????????
+    // 1) Register all Freight factories
     fs.registerFactory("MiniMover", make_unique<MiniMoverFactory>());
     fs.registerFactory("CargoCruiser", make_unique<CargoCruiserFactory>());
     fs.registerFactory("MegaCarrier", make_unique<MegaCarrierFactory>());
 
-    // ??? 2) Load from files ???????????????????????????????????????
+    // 2) Load from files
     cs.loadCargoFromFile("Cargo.txt");
     fs.loadFreightFromFile("Freight.txt");
 
@@ -115,8 +115,23 @@ int main() {
 
         case 3: {  // Add Cargo
             auto id = cs.generateNextCargoId();
-            cout << "New Cargo ID: " << id << "\nLocation: ";
-            string loc; getline(cin, loc);
+            cout << "New Cargo ID: " << id << "\n";
+
+            // Require at least one alphabetic character in location
+            string loc;
+            while (true) {
+                cout << "Location: ";
+                getline(cin, loc);
+                bool hasAlpha = false;
+                for (char ch : loc) {
+                    if (isalpha(static_cast<unsigned char>(ch))) {
+                        hasAlpha = true;
+                        break;
+                    }
+                }
+                if (hasAlpha) break;
+                cout << "Invalid. Location must contain at least one letter.\n";
+            }
 
             time_t t = 0;
             while (true) {
@@ -195,8 +210,23 @@ int main() {
 
         case 6: {  // Add Freight
             string id = fs.generateNextFreightId();
-            cout << "New Freight ID: " << id << "\nLocation: ";
-            string loc; getline(cin, loc);
+            cout << "New Freight ID: " << id << "\n";
+
+            // Require at least one alphabetic character in location
+            string loc;
+            while (true) {
+                cout << "Location: ";
+                getline(cin, loc);
+                bool hasAlpha = false;
+                for (char ch : loc) {
+                    if (isalpha(static_cast<unsigned char>(ch))) {
+                        hasAlpha = true;
+                        break;
+                    }
+                }
+                if (hasAlpha) break;
+                cout << "Invalid. Location must contain at least one letter.\n";
+            }
 
             time_t t = 0;
             while (true) {
@@ -221,7 +251,6 @@ int main() {
                 cout << "Invalid. Try again.\n";
             }
 
-            // ?? Use registered factory ?????????????????????
             string key = (ty == 1 ? "MiniMover"
                 : ty == 2 ? "CargoCruiser"
                 : "MegaCarrier");
@@ -237,7 +266,7 @@ int main() {
             break;
         }
 
-        case 7: {  // Edit Freight with validation
+        case 7: {  // Edit Freight
             cout << "Enter Freight ID to edit: ";
             string id; getline(cin, id);
 
@@ -265,7 +294,7 @@ int main() {
 
             cout << "Change type? 0=keep,1=MiniMover,2=Cruiser,3=Mega: ";
             int ty;
-            while (!(cin >> ty) || ty < 0 || ty>3) {
+            while (!(cin >> ty) || ty < 0 || ty > 3) {
                 cin.clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cout << "Enter 0–3: ";
@@ -278,22 +307,19 @@ int main() {
                     : cout << "Freight ID not found.\n";
             }
             else {
-                // remove old, then add new via factory
                 fs.removeFreightById(id);
-
-                string key = (ty == 1 ? "MiniMover"
+                string key2 = (ty == 1 ? "MiniMover"
                     : ty == 2 ? "CargoCruiser"
                     : "MegaCarrier");
-                FreightFactory* fac2 = fs.getFactory(key);
+                FreightFactory* fac2 = fs.getFactory(key2);
                 auto newF = fac2->create(id, loc, t);
                 fs.addFreight(newF);
-
                 cout << "Freight type & details updated.\n";
             }
             break;
         }
 
-        case 8: {  // Delete Freight with validation
+        case 8: {  // Delete Freight
             cout << "Enter Freight ID to delete: ";
             string id; getline(cin, id);
 
@@ -317,18 +343,22 @@ int main() {
             ms.displaySchedule(fs, cs);
             break;
 
-        case 10:
+        case 10:  // Save schedule & persist Cargo and Freight
             ms.saveSchedule("schedule.txt", fs, cs);
             cout << "schedule.txt written.\n";
+            cs.saveCargoToFile("Cargo.txt");
+            fs.saveFreightToFile("Freight.txt");
+            cout << "Cargo.txt and Freight.txt updated.\n";
             break;
 
-        case 11:
+        case 11:  // Save Cargo & Freight, then exit
             cs.saveCargoToFile("Cargo.txt");
+            fs.saveFreightToFile("Freight.txt");
+            cout << "Cargo.txt and Freight.txt saved. Exiting.\n";
             exitFlag = true;
             break;
 
-        case 12:
-            // Exit without saving
+        case 12:  // Exit without saving
             exitFlag = true;
             break;
         }
