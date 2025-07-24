@@ -143,7 +143,6 @@ int main() {
             while (true) {
                 cout << "Location: ";
                 getline(cin, loc);
-                // At least one alpha character, not empty, not all spaces
                 if (!loc.empty() && std::any_of(loc.begin(), loc.end(), ::isalpha) &&
                     !std::all_of(loc.begin(), loc.end(), ::isspace)) {
                     break;
@@ -185,6 +184,12 @@ int main() {
         case 4: {  // Edit Cargo
             cout << "Enter Cargo ID to edit: ";
             string id; getline(cin, id);
+
+            // Check if input is empty or all spaces
+            if (id.empty() || all_of(id.begin(), id.end(), ::isspace)) {
+                cout << "Cargo ID not found.\n";
+                break;
+            }
 
             // Improved Location validation
             string loc;
@@ -233,6 +238,13 @@ int main() {
         case 5: {  // Delete Cargo
             cout << "Enter Cargo ID to delete: ";
             string id; getline(cin, id);
+
+            // Check if input is empty or all spaces
+            if (id.empty() || all_of(id.begin(), id.end(), ::isspace)) {
+                cout << "Cargo ID not found.\n";
+                break;
+            }
+
             if (cs.removeCargoById(id))
                 cout << "Cargo deleted from memory.\n";
             else
