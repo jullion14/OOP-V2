@@ -11,6 +11,7 @@
 #include <iostream>
 #include <iomanip>    // for setw, setfill
 #include <sstream>    // for ostringstream
+#include <string>     // for to_string
 
 #include "TimeWindowStrategy.h"
 
@@ -98,21 +99,35 @@ void MatchedStorage::saveSchedule(const std::string& filename,
             auto fA = A.first, fB = B.first;
             if (fA->getTime() != fB->getTime())
                 return fA->getTime() < fB->getTime();
-            // second priority: larger capacity first
             return fA->maxCapacity() > fB->maxCapacity();
         });
 
     // 3) print matched in the new order
     for (auto const& kv : sortedGroups) {
         auto f = kv.first;
+        // format time
         std::ostringstream tf;
         tf << std::setw(4) << std::setfill('0') << f->getTime();
 
+        // compute used & remaining capacity
+        size_t used = 0;
+        for (auto const& m : kv.second) {
+            used += m.getAssignedSize();
+        }
+        size_t rem = f->maxCapacity() - used;
+
+        // header with capacity suffix
         out << "Freight: " << f->getId()
             << " - " << f->getLocation()
-            << ", " << tf.str() << "\n"
+            << ", " << tf.str()
+            << (rem == 0
+                ? " (Max)"
+                : " (" + std::to_string(rem) +
+                (rem > 1 ? " slots available)" : " slot available)"))
+            << "\n"
             << std::string(50, '-') << "\n";
 
+        // the matched cargo lines
         for (auto const& m : kv.second) {
             out << m.getCargo()->getId()
                 << " - Size: " << m.getAssignedSize() << "\n"
@@ -164,14 +179,29 @@ void MatchedStorage::displaySchedule(const FreightStorage& /*fs*/,
     // 3) print matched in new order
     for (auto const& kv : sortedGroups) {
         auto f = kv.first;
+        // format time
         std::ostringstream tf;
         tf << std::setw(4) << std::setfill('0') << f->getTime();
 
+        // compute used & remaining capacity
+        size_t used = 0;
+        for (auto const& m : kv.second) {
+            used += m.getAssignedSize();
+        }
+        size_t rem = f->maxCapacity() - used;
+
+        // header with capacity suffix
         std::cout << "Freight: " << f->getId()
             << " - " << f->getLocation()
-            << ", " << tf.str() << "\n"
+            << ", " << tf.str()
+            << (rem == 0
+                ? " (Max)"
+                : " (" + std::to_string(rem) +
+                (rem > 1 ? " slots available)" : " slot available)"))
+            << "\n"
             << std::string(50, '-') << "\n";
 
+        // the matched cargo lines
         for (auto const& m : kv.second) {
             std::cout << m.getCargo()->getId()
                 << " - Size: " << m.getAssignedSize() << "\n"
