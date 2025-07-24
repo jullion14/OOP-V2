@@ -18,9 +18,7 @@
 
 using namespace std;
 
-/**
- * @brief Display the main menu options to the user.
- */
+// Prints the main menu options.
 void showMainMenu() {
     cout << "\n===== Main Menu =====\n"
         << " 1) Display Cargo & Freight\n"
@@ -38,12 +36,7 @@ void showMainMenu() {
         << "Select (1-12): ";
 }
 
-/**
- * @brief Get and validate user's menu choice.
- * @param min Minimum valid menu option.
- * @param max Maximum valid menu option.
- * @return Chosen integer value.
- */
+// Get and validate user's menu choice.
 int getUserChoice(int min = 1, int max = 12) {
     int c;
     while (!(cin >> c) || c < min || c > max) {
@@ -55,11 +48,7 @@ int getUserChoice(int min = 1, int max = 12) {
     return c;
 }
 
-/**
- * @brief Get the subtype name for a freight pointer (RTTI).
- * @param f Shared pointer to Freight.
- * @return Freight subtype as a string.
- */
+// Get the subtype name for a freight pointer (RTTI).
 string getFreightType(const shared_ptr<Freight>& f) {
     if (dynamic_cast<MiniMover*>(f.get()))      return "MiniMover";
     if (dynamic_cast<CargoCruiser*>(f.get()))   return "CargoCruiser";
@@ -67,11 +56,7 @@ string getFreightType(const shared_ptr<Freight>& f) {
     return "Unknown";
 }
 
-/**
- * @brief Print both cargo and freight lists side-by-side.
- * @param cs Reference to CargoStorage.
- * @param fs Reference to FreightStorage.
- */
+// Print both cargo and freight lists side-by-side.
 void printSideBySide(const CargoStorage& cs, const FreightStorage& fs) {
     const auto& cl = cs.getCargoList();
     const auto& fl = fs.getFreightList();
@@ -121,10 +106,6 @@ void printSideBySide(const CargoStorage& cs, const FreightStorage& fs) {
     }
 }
 
-/**
- * @brief Main user interface loop and application logic.
- * Handles loading, saving, user input, and all main menu actions.
- */
 int main() {
     CargoStorage   cs;
     FreightStorage fs;
@@ -157,20 +138,17 @@ int main() {
             auto id = cs.generateNextCargoId();
             cout << "New Cargo ID: " << id << "\n";
 
-            // Require at least one alphabetic character in location
+            // Improved Location validation: must not be empty, not all spaces, at least one letter
             string loc;
             while (true) {
                 cout << "Location: ";
                 getline(cin, loc);
-                bool hasAlpha = false;
-                for (char ch : loc) {
-                    if (isalpha(static_cast<unsigned char>(ch))) {
-                        hasAlpha = true;
-                        break;
-                    }
+                // At least one alpha character, not empty, not all spaces
+                if (!loc.empty() && std::any_of(loc.begin(), loc.end(), ::isalpha) &&
+                    !std::all_of(loc.begin(), loc.end(), ::isspace)) {
+                    break;
                 }
-                if (hasAlpha) break;
-                cout << "Invalid. Location must contain at least one letter.\n";
+                cout << "Invalid. Location must contain at least one letter and not be all spaces.\n";
             }
 
             time_t t = 0;
@@ -184,16 +162,19 @@ int main() {
                 cout << "Invalid. Try again.\n";
             }
 
+            // Improved Group size validation: must be positive integer only
             int g = 0;
             while (true) {
                 cout << "Group size (>0): ";
-                if (cin >> g && g > 0) {
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                    break;
+                string groupInput;
+                getline(cin, groupInput);
+
+                // Only allow digits
+                if (!groupInput.empty() && std::all_of(groupInput.begin(), groupInput.end(), ::isdigit)) {
+                    g = stoi(groupInput);
+                    if (g > 0) break;
                 }
-                cin.clear();
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Invalid. Try again.\n";
+                cout << "Invalid. Please enter a positive whole number (no decimals or letters).\n";
             }
 
             cs.addCargo(make_shared<Cargo>(id, loc, t, g));
@@ -205,8 +186,17 @@ int main() {
             cout << "Enter Cargo ID to edit: ";
             string id; getline(cin, id);
 
-            cout << "New location: ";
-            string loc; getline(cin, loc);
+            // Improved Location validation
+            string loc;
+            while (true) {
+                cout << "New location: ";
+                getline(cin, loc);
+                if (!loc.empty() && std::any_of(loc.begin(), loc.end(), ::isalpha) &&
+                    !std::all_of(loc.begin(), loc.end(), ::isspace)) {
+                    break;
+                }
+                cout << "Invalid. Location must contain at least one letter and not be all spaces.\n";
+            }
 
             time_t t = 0;
             while (true) {
@@ -219,16 +209,18 @@ int main() {
                 cout << "Invalid. Try again.\n";
             }
 
+            // Improved Group size validation
             int g = 0;
             while (true) {
                 cout << "New group size (>0): ";
-                if (cin >> g && g > 0) {
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                    break;
+                string groupInput;
+                getline(cin, groupInput);
+
+                if (!groupInput.empty() && std::all_of(groupInput.begin(), groupInput.end(), ::isdigit)) {
+                    g = stoi(groupInput);
+                    if (g > 0) break;
                 }
-                cin.clear();
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Invalid. Try again.\n";
+                cout << "Invalid. Please enter a positive whole number (no decimals or letters).\n";
             }
 
             if (cs.editCargo(id, loc, t, g))
@@ -252,19 +244,16 @@ int main() {
             string id = fs.generateNextFreightId();
             cout << "New Freight ID: " << id << "\n";
 
+            // Improved Location validation for Freight
             string loc;
             while (true) {
                 cout << "Location: ";
                 getline(cin, loc);
-                bool hasAlpha = false;
-                for (char ch : loc) {
-                    if (isalpha(static_cast<unsigned char>(ch))) {
-                        hasAlpha = true;
-                        break;
-                    }
+                if (!loc.empty() && std::any_of(loc.begin(), loc.end(), ::isalpha) &&
+                    !std::all_of(loc.begin(), loc.end(), ::isspace)) {
+                    break;
                 }
-                if (hasAlpha) break;
-                cout << "Invalid. Location must contain at least one letter.\n";
+                cout << "Invalid. Location must contain at least one letter and not be all spaces.\n";
             }
 
             time_t t = 0;
@@ -317,8 +306,17 @@ int main() {
                 break;
             }
 
-            cout << "New Location: ";
-            string loc; getline(cin, loc);
+            // Improved Location validation for Freight
+            string loc;
+            while (true) {
+                cout << "New Location: ";
+                getline(cin, loc);
+                if (!loc.empty() && std::any_of(loc.begin(), loc.end(), ::isalpha) &&
+                    !std::all_of(loc.begin(), loc.end(), ::isspace)) {
+                    break;
+                }
+                cout << "Invalid. Location must contain at least one letter and not be all spaces.\n";
+            }
 
             time_t t = 0;
             while (true) {
