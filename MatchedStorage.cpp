@@ -48,12 +48,8 @@ void MatchedStorage::generateMatches(const FreightStorage& fs,
         while (cargoRem[c] > 0) {
             bool loaded = false;
             for (auto const& f : freights) {
-                if (!strategy_->canMatch(*f, *c)) {
-                    continue;
-                }
-                if (capRem[f] == 0) {
-                    continue;
-                }
+                if (!strategy_->canMatch(*f, *c)) continue;
+                if (capRem[f] == 0) continue;
 
                 size_t assign = std::min(capRem[f],
                     static_cast<size_t>(cargoRem[c]));
@@ -64,9 +60,7 @@ void MatchedStorage::generateMatches(const FreightStorage& fs,
                 loaded = true;
                 break;
             }
-            if (!loaded) {
-                break;
-            }
+            if (!loaded) break;
         }
     }
 }
@@ -87,18 +81,25 @@ void MatchedStorage::saveSchedule(const std::string& filename,
     std::ofstream out(filename);
     out << "Matched:\n\n";
 
-    // group by freight
+    // 1) group by freight
     std::map<std::shared_ptr<Freight>, std::vector<Matcher>> groups;
     for (auto const& m : matchedList_) {
         if (!m.isValid()) continue;
         groups[m.getFreight()].push_back(m);
     }
 
-    // print matched
-    for (auto const& kv : groups) {
+    // 2) move into vector and sort by freight time (earliest first)
+    std::vector<std::pair<std::shared_ptr<Freight>, std::vector<Matcher>>> sortedGroups(
+        groups.begin(), groups.end());
+    std::sort(sortedGroups.begin(), sortedGroups.end(),
+        [](auto const& a, auto const& b) {
+            return a.first->getTime() < b.first->getTime();
+        });
+
+    // 3) print matched in time order
+    for (auto const& kv : sortedGroups) {
         auto f = kv.first;
 
-        // zero-pad freight time
         std::ostringstream tf;
         tf << std::setw(4) << std::setfill('0') << f->getTime();
 
@@ -115,11 +116,10 @@ void MatchedStorage::saveSchedule(const std::string& filename,
         out << "\n";
     }
 
-    // compute unmatched
+    // 4) compute & print unmatched
     std::unordered_map<std::shared_ptr<Cargo>, int> assigned;
     for (auto const& m : matchedList_) {
         if (!m.isValid()) continue;
-        // <— explicit cast removes the warning here
         assigned[m.getCargo()] += static_cast<int>(m.getAssignedSize());
     }
 
@@ -132,22 +132,29 @@ void MatchedStorage::saveSchedule(const std::string& filename,
     }
 }
 
-void MatchedStorage::displaySchedule(const FreightStorage& fs,
+void MatchedStorage::displaySchedule(const FreightStorage& /*fs*/,
     const CargoStorage& cs) const
 {
     std::cout << "Matched:\n\n";
 
-    // group by freight
+    // 1) group by freight
     std::map<std::shared_ptr<Freight>, std::vector<Matcher>> groups;
     for (auto const& m : matchedList_) {
         if (!m.isValid()) continue;
         groups[m.getFreight()].push_back(m);
     }
 
-    // print matched
-    for (auto const& kv : groups) {
-        auto f = kv.first;
+    // 2) move into vector and sort by freight time
+    std::vector<std::pair<std::shared_ptr<Freight>, std::vector<Matcher>>> sortedGroups(
+        groups.begin(), groups.end());
+    std::sort(sortedGroups.begin(), sortedGroups.end(),
+        [](auto const& a, auto const& b) {
+            return a.first->getTime() < b.first->getTime();
+        });
 
+    // 3) print matched in time order
+    for (auto const& kv : sortedGroups) {
+        auto f = kv.first;
         std::ostringstream tf;
         tf << std::setw(4) << std::setfill('0') << f->getTime();
 
@@ -164,11 +171,10 @@ void MatchedStorage::displaySchedule(const FreightStorage& fs,
         std::cout << "\n";
     }
 
-    // compute unmatched
+    // 4) compute & print unmatched
     std::unordered_map<std::shared_ptr<Cargo>, int> assigned;
     for (auto const& m : matchedList_) {
         if (!m.isValid()) continue;
-        // <— and here as well
         assigned[m.getCargo()] += static_cast<int>(m.getAssignedSize());
     }
 
